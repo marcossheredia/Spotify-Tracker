@@ -1,10 +1,8 @@
 package com.tfg.spotifytracker.controller;
 
-import com.tfg.spotifytracker.dto.auth.response.AuthResponseDTO;
 import com.tfg.spotifytracker.dto.usuario.response.UsuarioDTO;
 import com.tfg.spotifytracker.entity.Usuario;
 import com.tfg.spotifytracker.mapper.UsuarioMapper;
-import com.tfg.spotifytracker.security.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtTokenProvider jwtTokenProvider;
     private final UsuarioMapper usuarioMapper;
 
     @Operation(summary = "Obtener usuario autenticado")

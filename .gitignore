@@ -1,22 +1,42 @@
-cat > .gitignore <<'EOF'
-# Entorno
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+
+# Environment variables
 .env
 .env.local
 .env.*.local
 
-# Backend
-backend/target/
-backend/.mvn/wrapper/maven-wrapper.jar
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
 
 # Frontend
 frontend/node_modules/
 frontend/dist/
 
-# IDE
-.vscode/
-.idea/
+# Backend
+backend/target/
 
-# Sistema
-.DS_Store
-Thumbs.db
-EOF
+# Docker / local
+docker-compose.override.yml

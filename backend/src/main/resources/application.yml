@@ -1,0 +1,117 @@
+spring:
+  application:
+    name: spotify-tracker-backend
+
+  # ── DataSource ──────────────────────────────
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:spotifytracker_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:123456789}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+
+  # ── JPA ─────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+
+  # ── Flyway ──────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    out-of-order: false
+
+  # ── OAuth2 / Spotify ────────────────────────
+  security:
+    oauth2:
+      client:
+        registration:
+          spotify:
+            client-id: ${SPOTIFY_CLIENT_ID}
+            client-secret: ${SPOTIFY_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${SPOTIFY_REDIRECT_URI:http://localhost:8080/login/oauth2/code/spotify}
+            scope:
+              - user-read-email
+              - user-read-private
+              - playlist-read-private
+              - playlist-read-collaborative
+              - user-top-read
+              - user-library-read
+              - user-read-recently-played
+              - user-read-currently-playing
+              - user-read-playback-state
+              - user-follow-read
+              - user-library-modify
+              - user-follow-modify
+              - playlist-modify-private
+              - playlist-modify-public
+              - user-modify-playback-state
+        provider:
+          spotify:
+            authorization-uri: https://accounts.spotify.com/authorize
+            token-uri: https://accounts.spotify.com/api/token
+            user-info-uri: https://api.spotify.com/v1/me
+            user-name-attribute: id
+
+  # ── Cache ───────────────────────────────────
+  cache:
+    type: simple
+
+# ── Server ────────────────────────────────────
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# ── Actuator ──────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# ── OpenAPI / Swagger ─────────────────────────
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    oauth:
+      client-id: ${SPOTIFY_CLIENT_ID:}
+
+# ── App custom properties ─────────────────────
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: 86400000   # 24 h
+  frontend-base-url: ${FRONTEND_URL:http://localhost:3000}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+
+assistant:
+  ai:
+    provider: ${ASSISTANT_AI_PROVIDER:mock}
+    openai-api-key: ${OPENAI_API_KEY:}
+    refiner-model: ${ASSISTANT_REFINER_MODEL:gpt-4o-mini}
+    character-model: ${ASSISTANT_CHARACTER_MODEL:gpt-4o-mini}
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${ASSISTANT_GEMINI_MODEL:gemini-2.5-flash}
+      base-url: ${ASSISTANT_GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
+      timeout-seconds: ${ASSISTANT_GEMINI_TIMEOUT_SECONDS:20}

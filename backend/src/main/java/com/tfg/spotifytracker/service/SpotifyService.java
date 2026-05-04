@@ -671,6 +671,7 @@ public class SpotifyService {
         }
     }
 
+    @SuppressWarnings("unused")
     private List<Object> getSpotifyResourceList(String accessToken, String uri) {
         String safeAccessToken = Objects.requireNonNull(accessToken, "Spotify access token es obligatorio");
         String safeUri = Objects.requireNonNull(uri, "La URI de Spotify es obligatoria");

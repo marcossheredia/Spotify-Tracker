@@ -77,7 +77,6 @@ public class UsuarioService {
 
     // ── helpers ──────────────────────────────────────
 
-    @SuppressWarnings("unchecked")
     private String extractEmail(Map<String, Object> attrs) {
         Object email = attrs.get("email");
         if (email instanceof String s) return s;

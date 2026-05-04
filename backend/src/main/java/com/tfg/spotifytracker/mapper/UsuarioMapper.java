@@ -1,6 +1,6 @@
 package com.tfg.spotifytracker.mapper;
 
-import com.tfg.spotifytracker.dto.UsuarioDTO;
+import com.tfg.spotifytracker.dto.usuario.response.UsuarioDTO;
 import com.tfg.spotifytracker.entity.Usuario;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;

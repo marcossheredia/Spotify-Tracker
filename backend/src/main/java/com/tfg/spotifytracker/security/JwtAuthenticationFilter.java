@@ -1,6 +1,5 @@
 package com.tfg.spotifytracker.security;
 
-import com.tfg.spotifytracker.entity.Usuario;
 import com.tfg.spotifytracker.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
