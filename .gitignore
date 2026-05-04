@@ -1,0 +1,22 @@
+cat > .gitignore <<'EOF'
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
+EOF
