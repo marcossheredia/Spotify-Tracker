@@ -1,0 +1,32 @@
+/* ── Global styles ───────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-accent: #1db954;
+  --color-accent-soft: #1ed760;
+  --color-green:   var(--color-accent);
+  --color-green-l: var(--color-accent-soft);
+  --color-bg:      #121212;
+  --color-surface: #282828;
+  --color-border:  #383838;
+  --color-text:    #ffffff;
+  --color-muted:   #b3b3b3;
+  font-size: 16px;
+}
+
+html, body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+button { font-family: inherit; }
