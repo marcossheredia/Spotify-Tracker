@@ -4,10 +4,10 @@ spring:
 
   # ── DataSource ──────────────────────────────
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:spotifytracker_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:123456789}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:usuarios_tfg}?useSSL=false&serverTimezone=${DB_TIMEZONE:Europe/Madrid}&allowPublicKeyRetrieval=true
+    username: ${DB_USER:tfg_user}
+    password: ${DB_PASSWORD:tfg_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 20000
       maximum-pool-size: 5
@@ -20,14 +20,17 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-        default_schema: public
+        jdbc:
+          time_zone: Europe/Madrid
 
   # ── Flyway ──────────────────────────────────
   flyway:
-    enabled: true
-    locations: classpath:db/migration
+    # Local MySQL schema is created externally at /home/marcos/BBDD/UsuariosTFG/init/01_schema.sql
+    # Legacy PostgreSQL migrations were moved to db/migration/postgres_legacy.
+    enabled: ${FLYWAY_ENABLED:false}
+    locations: classpath:db/migration/mysql
     baseline-on-migrate: false
     out-of-order: false
 

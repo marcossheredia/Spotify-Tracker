@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,10 +37,12 @@ public class ReproduccionReciente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "id", columnDefinition = "CHAR(36)", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "usuario_id", nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "usuario_id", columnDefinition = "CHAR(36)", nullable = false)
     private UUID usuarioId;
 
     @Column(name = "spotify_track_id", nullable = false)
@@ -59,7 +63,7 @@ public class ReproduccionReciente {
     @Column(name = "spotify_url", columnDefinition = "TEXT")
     private String spotifyUrl;
 
-    @Column(name = "played_at", nullable = false)
+    @Column(name = "played_at", nullable = false, columnDefinition = "DATETIME(6)")
     private Instant playedAt;
 
     @Column(name = "played_at_ms", nullable = false)
@@ -75,6 +79,6 @@ public class ReproduccionReciente {
     private String contextUri;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime createdAt;
 }

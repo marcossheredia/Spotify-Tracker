@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -19,7 +21,8 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "id", columnDefinition = "CHAR(36)", updatable = false, nullable = false)
     private UUID id;
 
     @Column(name = "spotify_id", unique = true, nullable = false)
@@ -28,7 +31,7 @@ public class Usuario {
     @Column(name = "display_name")
     private String displayName;
 
-    @Column(unique = true)
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "image_url")
@@ -44,14 +47,14 @@ public class Usuario {
     @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
-    @Column(name = "token_expires_at")
+    @Column(name = "token_expires_at", columnDefinition = "DATETIME(6)")
     private Instant tokenExpiresAt;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime updatedAt;
 }

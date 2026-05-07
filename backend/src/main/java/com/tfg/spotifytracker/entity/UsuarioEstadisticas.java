@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -26,7 +28,8 @@ import java.util.UUID;
 public class UsuarioEstadisticas {
 
     @Id
-    @Column(name = "usuario_id", nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "usuario_id", columnDefinition = "CHAR(36)", nullable = false)
     private UUID usuarioId;
 
     @Column(name = "total_playtime_ms", nullable = false)
@@ -35,21 +38,21 @@ public class UsuarioEstadisticas {
     @Column(name = "total_reproducciones", nullable = false)
     private Long totalReproducciones;
 
-    @Column(name = "last_recently_played_at")
+    @Column(name = "last_recently_played_at", columnDefinition = "DATETIME(6)")
     private Instant lastRecentlyPlayedAt;
 
     @Column(name = "last_recently_played_ms")
     private Long lastRecentlyPlayedMs;
 
-    @Column(name = "last_sync_at")
+    @Column(name = "last_sync_at", columnDefinition = "DATETIME(6)")
     private Instant lastSyncAt;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime updatedAt;
 }
     
