@@ -22,75 +22,85 @@
     </header>
 
     <section class="assistant-layout">
-      <div class="chat-panel">
-        <div class="chat-history">
-          <div
-            v-for="message in chatMessages"
-            :key="message.id"
-            class="chat-message"
-            :class="`chat-message--${message.role}`"
-          >
-            <p class="chat-text">{{ message.content }}</p>
+      <div class="assistant-side">
+        <AssistantAvatar
+          :state="isLoading ? 'generating' : 'idle'"
+          name="Asistente"
+          subtitle="Dime que quieres escuchar y preparare una playlist para ti."
+        />
+      </div>
 
-            <div v-if="message.result" class="result-card">
-              <div class="result-header">
-                <div>
-                  <h3>{{ message.result.playlistName || "Playlist creada" }}</h3>
-                  <p>{{ message.result.tracksAdded }} canciones agregadas</p>
+      <div class="assistant-main">
+        <div class="chat-panel">
+          <div class="chat-history">
+            <div
+              v-for="message in chatMessages"
+              :key="message.id"
+              class="chat-message"
+              :class="`chat-message--${message.role}`"
+            >
+              <p class="chat-text">{{ message.content }}</p>
+
+              <div v-if="message.result" class="result-card">
+                <div class="result-header">
+                  <div>
+                    <h3>{{ message.result.playlistName || "Playlist creada" }}</h3>
+                    <p>{{ message.result.tracksAdded }} canciones agregadas</p>
+                  </div>
+                  <a
+                    v-if="message.result.externalUrl"
+                    class="result-link"
+                    :href="message.result.externalUrl"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Abrir en Spotify
+                  </a>
                 </div>
-                <a
-                  v-if="message.result.externalUrl"
-                  class="result-link"
-                  :href="message.result.externalUrl"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Abrir en Spotify
-                </a>
+
+                <ul v-if="message.result.tracks.length" class="tracks-list">
+                  <li v-for="track in message.result.tracks.slice(0, 10)" :key="track.id">
+                    <span class="track-name">{{ track.name }}</span>
+                    <span class="track-artist">{{ track.artist }}</span>
+                  </li>
+                </ul>
               </div>
-
-              <ul v-if="message.result.tracks.length" class="tracks-list">
-                <li v-for="track in message.result.tracks.slice(0, 10)" :key="track.id">
-                  <span class="track-name">{{ track.name }}</span>
-                  <span class="track-artist">{{ track.artist }}</span>
-                </li>
-              </ul>
             </div>
           </div>
+
+          <p v-if="error" class="error-banner">{{ error }}</p>
+
+          <form class="chat-composer" @submit.prevent="handleSubmit">
+            <textarea
+              v-model="messageInput"
+              rows="3"
+              placeholder="Ej: Creame una playlist de rock alternativo para entrenar"
+              :disabled="isLoading"
+            />
+            <div class="composer-actions">
+              <div class="options">
+                <label class="option-item">
+                  <span>Publica</span>
+                  <input v-model="publicPlaylist" type="checkbox" :disabled="isLoading" />
+                </label>
+                <label class="option-item">
+                  <span>Canciones</span>
+                  <input
+                    v-model.number="trackLimit"
+                    type="number"
+                    min="5"
+                    max="50"
+                    step="1"
+                    :disabled="isLoading"
+                  />
+                </label>
+              </div>
+              <button type="submit" class="send-btn" :disabled="isLoading || !canSend">
+                {{ isLoading ? "Creando..." : "Enviar" }}
+              </button>
+            </div>
+          </form>
         </div>
-
-        <p v-if="error" class="error-banner">{{ error }}</p>
-
-        <form class="chat-composer" @submit.prevent="handleSubmit">
-          <textarea
-            v-model="messageInput"
-            rows="3"
-            placeholder="Ej: Creame una playlist de rock alternativo para entrenar"
-            :disabled="isLoading"
-          />
-          <div class="composer-actions">
-            <div class="options">
-              <label class="option-item">
-                <span>Publica</span>
-                <input v-model="publicPlaylist" type="checkbox" :disabled="isLoading" />
-              </label>
-              <label class="option-item">
-                <span>Canciones</span>
-                <input
-                  v-model.number="trackLimit"
-                  type="number"
-                  min="5"
-                  max="50"
-                  step="1"
-                  :disabled="isLoading"
-                />
-              </label>
-            </div>
-            <button type="submit" class="send-btn" :disabled="isLoading || !canSend">
-              {{ isLoading ? "Creando..." : "Enviar" }}
-            </button>
-          </div>
-        </form>
       </div>
     </section>
   </div>
@@ -98,6 +108,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import AssistantAvatar from "@/modules/assistant/components/AssistantAvatar.vue";
 import { useAssistant } from "@/modules/assistant/composables/useAssistant";
 
 const messageInput = ref("");
@@ -244,6 +255,22 @@ function buildId() {
   gap: 0.75rem;
 }
 
+.assistant-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
+  gap: 1.8rem;
+  align-items: start;
+}
+
+.assistant-side {
+  position: sticky;
+  top: 1.5rem;
+}
+
+.assistant-main {
+  min-width: 0;
+}
+
 .status-badge {
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
@@ -284,11 +311,6 @@ function buildId() {
 .tts-toggle.active {
   border-color: #1db954;
   color: #1db954;
-}
-
-.assistant-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
 }
 
 .chat-panel {
@@ -462,6 +484,14 @@ function buildId() {
   .view-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .assistant-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .assistant-side {
+    position: static;
   }
 
   .chat-message {
