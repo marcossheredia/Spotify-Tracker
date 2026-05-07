@@ -27,7 +27,6 @@ const { login } = useAuth();
 <style scoped>
 .home {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #121212 50%, #1a1a2e 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,8 +34,12 @@ const { login } = useAuth();
 
 .hero-content {
   text-align: center;
-  padding: 2rem;
+  padding: 2.5rem;
   max-width: 480px;
+  background: rgba(253, 248, 239, 0.10);
+  border: 1px solid rgba(233, 220, 186, 0.25);
+  border-radius: var(--app-radius-lg);
+  backdrop-filter: blur(8px);
 }
 
 .logo-area {
@@ -50,18 +53,18 @@ const { login } = useAuth();
 .spotify-icon {
   width: 52px;
   height: 52px;
-  color: #1db954;
+  color: var(--color-accent);
 }
 
 h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-accent-soft);
   letter-spacing: -0.5px;
 }
 
 .subtitle {
-  color: #b3b3b3;
+  color: rgba(233, 220, 186, 0.75);
   font-size: 1.05rem;
   line-height: 1.6;
   margin-bottom: 2.5rem;

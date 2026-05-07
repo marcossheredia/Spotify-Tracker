@@ -69,13 +69,17 @@ async function submit() {
 <style scoped>
 .automation-view {
   min-height: calc(100vh - 64px);
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  color: var(--color-text);
+}
+
+.automation-view h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .subtitle {
-  color: #c0c0c0;
+  color: var(--color-muted);
   margin-top: 0.4rem;
 }
 
@@ -84,15 +88,18 @@ async function submit() {
   display: grid;
   gap: 0.7rem;
   max-width: 540px;
-  background: #1a1a1a;
-  border: 1px solid #2f2f2f;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--app-radius-md);
   padding: 1rem;
+  box-shadow: var(--app-shadow-soft);
 }
 
 label {
   display: grid;
   gap: 0.35rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
 }
 
 .checkbox {
@@ -102,29 +109,61 @@ label {
 }
 
 input,
-select,
-button {
-  border: 1px solid #4b4b4b;
-  background: #151515;
-  color: #fff;
+select {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 0.45rem 0.6rem;
+  font-family: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(207, 163, 113, 0.18);
+}
+
+button[type="submit"] {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: 1px solid rgba(233, 220, 186, 0.35);
+  border-radius: 8px;
+  padding: 0.55rem 0.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: var(--color-primary-strong);
 }
 
 .result {
   margin-top: 1rem;
-  border: 1px solid #255d37;
-  background: #143120;
+  border: 1px solid rgba(61, 107, 87, 0.35);
+  background: rgba(61, 107, 87, 0.08);
   border-radius: 10px;
   padding: 0.8rem;
+  color: var(--color-text);
+}
+
+.result h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-success);
+  margin-bottom: 0.35rem;
 }
 
 .result a {
-  color: #9af0a8;
+  color: var(--color-success);
+  font-weight: 600;
 }
 
 .error {
   margin-top: 0.8rem;
-  color: #ffb4b4;
+  color: var(--color-accent-wine);
 }
 </style>

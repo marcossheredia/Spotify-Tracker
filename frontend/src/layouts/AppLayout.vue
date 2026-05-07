@@ -14,10 +14,13 @@ import AppNavbar from "@/shared/components/AppNavbar.vue";
 <style scoped>
 .app-layout {
   min-height: 100vh;
-  background: var(--color-bg, #121212);
+  background:
+    radial-gradient(circle at bottom left, rgba(207, 163, 113, 0.18), transparent 30%),
+    var(--color-bg);
 }
 
 .app-content {
   min-height: calc(100vh - 64px);
+  padding: var(--app-page-padding);
 }
 </style>

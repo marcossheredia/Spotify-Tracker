@@ -171,22 +171,23 @@ const visibleTracks = computed(() => {
   position: absolute;
   inset: 0;
   border: none;
-  background: rgba(0, 0, 0, 0.48);
+  background: rgba(18, 50, 55, 0.45);
 }
 
 .drawer-panel {
   position: relative;
   width: min(520px, 100%);
   height: 100%;
-  background: #131313;
-  border-left: 1px solid #333;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
+  box-shadow: -8px 0 32px rgba(18, 50, 55, 0.14);
 }
 
 .drawer-header {
   padding: 1rem;
-  border-bottom: 1px solid #2f2f2f;
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
@@ -204,7 +205,7 @@ const visibleTracks = computed(() => {
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #242424;
+  background: var(--color-surface-strong);
 }
 
 .header-cover {
@@ -217,7 +218,7 @@ const visibleTracks = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #afafaf;
+  color: var(--color-primary);
 }
 
 .header-content {
@@ -225,32 +226,38 @@ const visibleTracks = computed(() => {
 }
 
 .eyebrow {
-  color: #9c9c9c;
+  color: var(--color-muted-soft);
   font-size: 0.74rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .header-content h2 {
-  color: #fff;
+  color: var(--color-text);
   font-size: 1.1rem;
   margin: 0.2rem 0 0.45rem;
+  font-weight: 700;
 }
 
 .meta {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.8rem;
   margin-top: 0.15rem;
 }
 
 .close-btn {
-  border: 1px solid #444;
-  background: #1d1d1d;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 0.4rem 0.65rem;
   cursor: pointer;
   height: fit-content;
+  transition: border-color 0.15s;
+}
+
+.close-btn:hover {
+  border-color: var(--color-accent);
 }
 
 .drawer-content {
@@ -267,7 +274,7 @@ const visibleTracks = computed(() => {
 .loader-line {
   height: 12px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #222, #2d2d2d, #222);
+  background: linear-gradient(90deg, var(--color-surface-soft), var(--color-surface-strong), var(--color-surface-soft));
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
@@ -285,25 +292,26 @@ const visibleTracks = computed(() => {
 }
 
 .fallback-card {
-  border: 1px dashed #494949;
+  border: 1px dashed var(--color-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-surface-soft);
   padding: 0.85rem;
-  color: #d4d4d4;
+  color: var(--color-muted);
 }
 
 .spotify-link {
   margin-top: 0.6rem;
   display: inline-block;
-  color: #fff;
+  color: var(--color-text);
   text-decoration: none;
-  border: 1px solid #4c4c4c;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   padding: 0.35rem 0.65rem;
+  transition: border-color 0.15s;
 }
 
 .spotify-link:hover {
-  border-color: #7b7b7b;
+  border-color: var(--color-accent);
 }
 
 .tracks-toolbar {
@@ -315,29 +323,30 @@ const visibleTracks = computed(() => {
 }
 
 .track-filter-btn {
-  border: 1px solid #444;
-  background: #1e1e1e;
-  color: #d6d6d6;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.3rem 0.65rem;
   font-size: 0.76rem;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .track-filter-btn.active {
-  border-color: var(--color-accent, #1db954);
-  background: rgba(29, 185, 84, 0.15);
-  color: #fff;
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.16);
+  color: var(--color-primary);
 }
 
 .tracks-count {
   margin-left: auto;
-  color: #9f9f9f;
+  color: var(--color-muted-soft);
   font-size: 0.76rem;
 }
 
 .empty-msg {
-  color: #aaa;
+  color: var(--color-muted);
   font-size: 0.85rem;
 }
 
@@ -349,24 +358,29 @@ const visibleTracks = computed(() => {
 }
 
 .track-row {
-  border: 1px solid #2f2f2f;
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.55rem 0.6rem;
-  background: #1a1a1a;
+  background: var(--color-surface-soft);
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.6rem;
   align-items: center;
+  transition: border-color 0.15s;
+}
+
+.track-row:hover {
+  border-color: var(--color-accent);
 }
 
 .track-name {
-  color: #fff;
+  color: var(--color-text);
   font-size: 0.86rem;
   font-weight: 600;
 }
 
 .track-meta {
-  color: #adadad;
+  color: var(--color-muted);
   font-size: 0.75rem;
   margin-top: 0.15rem;
 }
@@ -378,23 +392,24 @@ const visibleTracks = computed(() => {
 }
 
 .liked-flag {
-  color: var(--color-accent, #1db954);
+  color: var(--color-accent-wine);
   font-size: 0.9rem;
 }
 
 .duration {
-  color: #b8b8b8;
+  color: var(--color-muted);
   font-size: 0.74rem;
 }
 
 .track-link {
-  color: #cfcfcf;
+  color: var(--color-muted);
   font-size: 0.74rem;
   text-decoration: none;
 }
 
 .track-link:hover {
   text-decoration: underline;
+  color: var(--color-primary);
 }
 
 @keyframes shimmer {

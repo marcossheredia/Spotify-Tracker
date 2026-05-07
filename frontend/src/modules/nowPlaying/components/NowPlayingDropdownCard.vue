@@ -90,10 +90,13 @@ const summarySubtitle = computed(() => {
 
 <style scoped>
 .now-playing-card {
-  background: #282828;
-  border: 1px solid #383838;
-  border-radius: 12px;
+  background:
+    radial-gradient(circle at top right, rgba(207, 163, 113, 0.18), transparent 36%),
+    linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  border: 1px solid rgba(233, 220, 186, 0.2);
+  border-radius: var(--app-radius-md);
   padding: 0.8rem 1rem;
+  color: var(--color-text-inverse);
 }
 
 .now-playing-summary {
@@ -122,8 +125,8 @@ const summarySubtitle = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-accent, #1db954);
-  color: #0d0d0d;
+  background: var(--color-accent);
+  color: var(--color-primary);
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -133,13 +136,13 @@ const summarySubtitle = computed(() => {
 }
 
 .summary-title {
-  color: #fff;
+  color: var(--color-accent-soft);
   font-size: 0.95rem;
   font-weight: 700;
 }
 
 .summary-subtitle {
-  color: #b3b3b3;
+  color: rgba(233, 220, 186, 0.7);
   font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
@@ -148,7 +151,7 @@ const summarySubtitle = computed(() => {
 }
 
 .summary-caret {
-  color: #b3b3b3;
+  color: rgba(233, 220, 186, 0.6);
   transition: transform 0.2s ease;
 }
 
@@ -161,12 +164,12 @@ const summarySubtitle = computed(() => {
 }
 
 .section-message {
-  color: #b3b3b3;
+  color: rgba(233, 220, 186, 0.75);
   font-size: 0.9rem;
 }
 
 .section-message.error {
-  color: #ff8080;
+  color: #f4a4a4;
 }
 
 .track-row {
@@ -186,8 +189,8 @@ const summarySubtitle = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #3b3b3b;
-  color: #fff;
+  background: rgba(233, 220, 186, 0.15);
+  color: var(--color-accent-soft);
 }
 
 .track-info {
@@ -195,7 +198,7 @@ const summarySubtitle = computed(() => {
 }
 
 .track-name {
-  color: #fff;
+  color: var(--color-text-inverse);
   text-decoration: none;
   font-size: 0.98rem;
   font-weight: 600;
@@ -206,10 +209,11 @@ const summarySubtitle = computed(() => {
 
 a.track-name:hover {
   text-decoration: underline;
+  color: var(--color-accent-soft);
 }
 
 .track-meta {
-  color: #b3b3b3;
+  color: rgba(233, 220, 186, 0.7);
   font-size: 0.83rem;
   margin-top: 0.2rem;
   overflow: hidden;
@@ -218,9 +222,10 @@ a.track-name:hover {
 }
 
 .track-state {
-  color: #8ce6a8;
+  color: var(--color-accent);
   font-size: 0.8rem;
   margin-top: 0.2rem;
+  font-weight: 600;
 }
 
 .progress-block {
@@ -231,18 +236,18 @@ a.track-name:hover {
   width: 100%;
   height: 6px;
   border-radius: 999px;
-  background: #3a3a3a;
+  background: rgba(233, 220, 186, 0.18);
   overflow: hidden;
 }
 
 .progress-fill {
   display: block;
   height: 100%;
-  background: var(--color-accent, #1db954);
+  background: var(--color-accent);
 }
 
 .progress-label {
-  color: #b3b3b3;
+  color: rgba(233, 220, 186, 0.6);
   font-size: 0.78rem;
   margin-top: 0.35rem;
 }

@@ -12,7 +12,7 @@ defineProps({ icon: { type: String, default: "🎧" }, title: { type: String, de
 </script>
 
 <style scoped>
-.app-empty-state { text-align: center; padding: 2rem; color: var(--color-muted, #b3b3b3); }
+.app-empty-state { text-align: center; padding: 2rem; color: var(--color-muted); }
 .app-empty-state__icon { font-size: 2rem; margin-bottom: 0.75rem; }
-h3 { color: #fff; margin-bottom: 0.5rem; }
+h3 { color: var(--color-text); margin-bottom: 0.5rem; }
 </style>

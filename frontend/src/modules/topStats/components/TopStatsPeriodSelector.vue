@@ -47,7 +47,7 @@ function onChange(event) {
 }
 
 .period-selector label {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -55,11 +55,18 @@ function onChange(event) {
 }
 
 .period-selector select {
-  background: #1f1f1f;
-  border: 1px solid #383838;
-  color: #fff;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 0.45rem 0.7rem;
   font-size: 0.9rem;
+  transition: border-color 0.18s;
+}
+
+.period-selector select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(207, 163, 113, 0.18);
 }
 </style>

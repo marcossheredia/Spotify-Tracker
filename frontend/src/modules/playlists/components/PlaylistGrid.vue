@@ -82,23 +82,25 @@ const emit = defineEmits(["select", "preview"]);
 }
 
 .playlist-card {
-  background: #191919;
-  border: 1px solid #2f2f2f;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .playlist-card:hover {
-  border-color: #4b4b4b;
+  border-color: var(--color-accent);
   transform: translateY(-1px);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .playlist-card.active {
-  border-color: var(--color-accent, #1db954);
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.06);
 }
 
 .card-main {
@@ -115,7 +117,7 @@ const emit = defineEmits(["select", "preview"]);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 0.65rem;
-  background: #232323;
+  background: var(--color-surface-strong);
 }
 
 .cover {
@@ -128,19 +130,19 @@ const emit = defineEmits(["select", "preview"]);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #adadad;
+  color: var(--color-primary);
   font-size: 1.2rem;
 }
 
 .name {
-  color: #fff;
+  color: var(--color-text);
   font-size: 0.96rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
 
 .meta {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.78rem;
   line-height: 1.35;
 }
@@ -154,20 +156,22 @@ const emit = defineEmits(["select", "preview"]);
 
 .badge {
   font-size: 0.7rem;
-  border: 1px solid #4a4a4a;
-  color: #cfcfcf;
+  border: 1px solid rgba(207, 163, 113, 0.35);
+  color: var(--color-primary);
   border-radius: 999px;
   padding: 0.15rem 0.45rem;
+  background: rgba(207, 163, 113, 0.12);
 }
 
 .badge-liked {
-  border-color: var(--color-accent, #1db954);
-  color: #fff;
+  border-color: var(--color-accent-wine);
+  color: var(--color-accent-wine);
+  background: rgba(94, 33, 40, 0.08);
 }
 
 .preview-text {
   margin-top: 0.45rem;
-  color: #9f9f9f;
+  color: var(--color-muted-soft);
   font-size: 0.74rem;
   line-height: 1.35;
 }
@@ -180,22 +184,28 @@ const emit = defineEmits(["select", "preview"]);
 }
 
 .detail-btn {
-  border: 1px solid #4b4b4b;
-  background: #222;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 0.35rem 0.6rem;
   font-size: 0.78rem;
   cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.detail-btn:hover {
+  border-color: var(--color-accent);
 }
 
 .spotify-link {
   font-size: 0.75rem;
-  color: #b9b9b9;
+  color: var(--color-muted);
   text-decoration: none;
 }
 
 .spotify-link:hover {
   text-decoration: underline;
+  color: var(--color-primary);
 }
 </style>

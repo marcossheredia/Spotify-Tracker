@@ -24,10 +24,11 @@ defineProps({
 .app-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 0; border-radius: 999px; padding: 0.75rem 1.15rem; font-weight: 700; cursor: pointer; transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease; }
 .app-button:hover:not(:disabled) { transform: translateY(-1px); }
 .app-button:disabled { cursor: not-allowed; opacity: 0.6; }
-.app-button--primary { background: var(--color-accent, #1db954); color: #041006; }
-.app-button--secondary { background: #282828; color: #fff; border: 1px solid #3d3d3d; }
-.app-button--ghost { background: transparent; color: #fff; border: 1px solid #444; }
-.app-button--danger { background: #ef4444; color: #fff; }
+.app-button--primary { background: var(--color-primary); color: var(--color-text-inverse); border: 1px solid rgba(233, 220, 186, 0.35); }
+.app-button--primary:hover:not(:disabled) { background: var(--color-primary-strong); }
+.app-button--secondary { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+.app-button--ghost { background: transparent; color: var(--color-text); border: 1px solid var(--color-border); }
+.app-button--danger { background: var(--color-accent-wine); color: var(--color-text-inverse); border: 1px solid rgba(94, 33, 40, 0.35); }
 .app-button--block { width: 100%; }
 .app-button__spinner { width: 0.9rem; height: 0.9rem; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

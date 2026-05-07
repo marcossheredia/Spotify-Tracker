@@ -45,8 +45,8 @@ const safeCount = computed(() => Math.max(1, Math.min(Number(props.count) || 8, 
 }
 
 .skeleton-card {
-  background: #191919;
-  border: 1px solid #2f2f2f;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 0.75rem;
 }
@@ -56,7 +56,7 @@ const safeCount = computed(() => Math.max(1, Math.min(Number(props.count) || 8, 
   aspect-ratio: 1 / 1;
   border-radius: 12px;
   margin-bottom: 0.7rem;
-  background: linear-gradient(90deg, #222, #2d2d2d, #222);
+  background: linear-gradient(90deg, var(--color-surface-soft), var(--color-surface-strong), var(--color-surface-soft));
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
@@ -73,8 +73,8 @@ const safeCount = computed(() => Math.max(1, Math.min(Number(props.count) || 8, 
   gap: 0.75rem;
   align-items: center;
   border-radius: 10px;
-  border: 1px solid #2f2f2f;
-  background: #1b1b1b;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   padding: 0.6rem;
 }
 
@@ -82,7 +82,7 @@ const safeCount = computed(() => Math.max(1, Math.min(Number(props.count) || 8, 
   width: 52px;
   height: 52px;
   border-radius: 8px;
-  background: linear-gradient(90deg, #222, #2d2d2d, #222);
+  background: linear-gradient(90deg, var(--color-surface-soft), var(--color-surface-strong), var(--color-surface-soft));
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
@@ -96,7 +96,7 @@ const safeCount = computed(() => Math.max(1, Math.min(Number(props.count) || 8, 
 .skeleton-line {
   height: 10px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #222, #2d2d2d, #222);
+  background: linear-gradient(90deg, var(--color-surface-soft), var(--color-surface-strong), var(--color-surface-soft));
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
@@ -118,7 +118,7 @@ const safeCount = computed(() => Math.max(1, Math.min(Number(props.count) || 8, 
   width: 72px;
   height: 24px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #222, #2d2d2d, #222);
+  background: linear-gradient(90deg, var(--color-surface-soft), var(--color-surface-strong), var(--color-surface-soft));
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }

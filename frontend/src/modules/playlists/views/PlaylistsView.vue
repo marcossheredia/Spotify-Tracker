@@ -291,9 +291,7 @@ function warmupPlaylistsPreview() {
 <style scoped>
 .playlists-view {
   min-height: calc(100vh - 64px);
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  color: var(--color-text);
 }
 
 .view-header {
@@ -303,10 +301,12 @@ function warmupPlaylistsPreview() {
 .view-header h1 {
   font-size: 1.75rem;
   margin-bottom: 0.4rem;
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .view-header p {
-  color: #b3b3b3;
+  color: var(--color-muted);
   max-width: 700px;
 }
 
@@ -317,37 +317,44 @@ function warmupPlaylistsPreview() {
 }
 
 .source-chip {
-  border: 1px solid #3f3f3f;
-  background: #191919;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.source-chip:hover {
+  border-color: var(--color-accent);
 }
 
 .source-chip.active {
-  border-color: #1db954;
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.16);
+  color: var(--color-primary);
 }
 
 .error-message {
-  border: 1px solid #684040;
-  background: #2b1b1b;
-  color: #ffb4b4;
+  border: 1px solid rgba(94, 33, 40, 0.35);
+  background: rgba(94, 33, 40, 0.10);
+  color: var(--color-accent-wine);
   border-radius: 10px;
   padding: 0.75rem 0.9rem;
 }
 
 .empty-message {
-  color: #adadad;
-  background: #191919;
-  border: 1px dashed #3c3c3c;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
   border-radius: 10px;
   padding: 0.8rem;
 }
 
 @media (max-width: 768px) {
   .playlists-view {
-    padding: 1rem;
+    padding: 0;
   }
 
   .view-header h1 {

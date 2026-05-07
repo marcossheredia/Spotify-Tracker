@@ -225,10 +225,9 @@ function buildId() {
 
 <style scoped>
 .assistant-view {
-  padding: 2rem 2.5rem 3rem;
-  color: #fff;
+  padding: 0;
+  color: var(--color-text);
   min-height: calc(100vh - 64px);
-  background: linear-gradient(140deg, #0b0b10 0%, #111118 50%, #1b1e2a 100%);
 }
 
 .view-header {
@@ -242,11 +241,13 @@ function buildId() {
 .view-header h1 {
   margin: 0 0 0.4rem;
   font-size: 2rem;
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .view-header p {
   margin: 0;
-  color: #b3b3b3;
+  color: var(--color-muted);
 }
 
 .status-badges {
@@ -274,51 +275,58 @@ function buildId() {
 .status-badge {
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(207, 163, 113, 0.16);
+  color: var(--color-primary);
+  border: 1px solid rgba(207, 163, 113, 0.35);
   font-size: 0.85rem;
 }
 
 .status-badge--thinking {
-  background: rgba(255, 184, 77, 0.2);
-  color: #ffcd75;
+  background: rgba(185, 133, 73, 0.18);
+  color: var(--color-warning);
+  border-color: rgba(185, 133, 73, 0.35);
 }
 
 .status-badge--creating {
-  background: rgba(90, 190, 255, 0.2);
-  color: #8ed2ff;
+  background: rgba(18, 50, 55, 0.12);
+  color: var(--color-primary);
+  border-color: rgba(18, 50, 55, 0.3);
 }
 
 .status-badge--success {
-  background: rgba(42, 216, 127, 0.2);
-  color: #68e5a7;
+  background: rgba(61, 107, 87, 0.15);
+  color: var(--color-success);
+  border-color: rgba(61, 107, 87, 0.35);
 }
 
 .status-badge--error {
-  background: rgba(255, 92, 92, 0.2);
-  color: #ff9b9b;
+  background: rgba(94, 33, 40, 0.12);
+  color: var(--color-accent-wine);
+  border-color: rgba(94, 33, 40, 0.35);
 }
 
 .tts-toggle {
-  border: 1px solid #3d3d3d;
-  background: #121212;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.35rem 0.75rem;
   cursor: pointer;
   font-size: 0.8rem;
+  transition: border-color 0.18s;
 }
 
 .tts-toggle.active {
-  border-color: #1db954;
-  color: #1db954;
+  border-color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .chat-panel {
-  background: rgba(15, 15, 20, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--app-radius-lg);
   padding: 1.5rem;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--app-shadow-card);
 }
 
 .chat-history {
@@ -334,12 +342,18 @@ function buildId() {
   max-width: 90%;
   padding: 0.85rem 1rem;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text);
 }
 
 .chat-message--user {
   margin-left: auto;
-  background: rgba(29, 185, 84, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(207, 163, 113, 0.18), transparent 40%),
+    linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  color: var(--color-text-inverse);
+  border-color: rgba(233, 220, 186, 0.2);
 }
 
 .chat-text {
@@ -350,9 +364,9 @@ function buildId() {
 .result-card {
   margin-top: 0.85rem;
   padding: 0.85rem;
-  background: rgba(12, 12, 18, 0.9);
+  background: var(--color-bg);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-border);
 }
 
 .result-header {
@@ -365,19 +379,28 @@ function buildId() {
 .result-header h3 {
   margin: 0;
   font-size: 1rem;
+  color: var(--color-text);
 }
 
 .result-header p {
   margin: 0.25rem 0 0;
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.85rem;
 }
 
 .result-link {
-  color: #1db954;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  transition: background 0.15s;
+}
+
+.result-link:hover {
+  background: var(--color-surface-soft);
 }
 
 .tracks-list {
@@ -393,7 +416,7 @@ function buildId() {
   justify-content: space-between;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #d0d0d0;
+  color: var(--color-text);
 }
 
 .track-name {
@@ -401,15 +424,16 @@ function buildId() {
 }
 
 .track-artist {
-  color: #9e9e9e;
+  color: var(--color-muted);
 }
 
 .error-banner {
   margin: 1rem 0 0;
   padding: 0.75rem 1rem;
-  background: rgba(255, 80, 80, 0.15);
+  background: rgba(94, 33, 40, 0.10);
+  border: 1px solid rgba(94, 33, 40, 0.35);
   border-radius: 10px;
-  color: #ffb3b3;
+  color: var(--color-accent-wine);
 }
 
 .chat-composer {
@@ -423,11 +447,18 @@ function buildId() {
   width: 100%;
   resize: vertical;
   border-radius: 12px;
-  border: 1px solid #2f2f2f;
-  background: #0d0d12;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   padding: 0.75rem;
   font-family: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.chat-composer textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(207, 163, 113, 0.18);
 }
 
 .composer-actions {
@@ -449,26 +480,31 @@ function buildId() {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #bfbfbf;
+  color: var(--color-muted);
 }
 
 .option-item input[type="number"] {
   width: 70px;
   padding: 0.3rem 0.4rem;
   border-radius: 8px;
-  border: 1px solid #2f2f2f;
-  background: #0d0d12;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .send-btn {
-  background: #1db954;
-  color: #000;
-  border: none;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: 1px solid rgba(233, 220, 186, 0.35);
   padding: 0.6rem 1.4rem;
   border-radius: 999px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.18s;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--color-primary-strong);
 }
 
 .send-btn:disabled {
@@ -478,7 +514,7 @@ function buildId() {
 
 @media (max-width: 900px) {
   .assistant-view {
-    padding: 1.5rem;
+    padding: 0;
   }
 
   .view-header {

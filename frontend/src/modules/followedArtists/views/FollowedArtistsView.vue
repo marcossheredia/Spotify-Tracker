@@ -62,9 +62,14 @@ async function unfollow(artistId) {
 <style scoped>
 .followed-artists-view {
   min-height: calc(100vh - 64px);
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  color: var(--color-text);
+}
+
+.followed-artists-view h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
 }
 
 .grid {
@@ -75,10 +80,23 @@ async function unfollow(artistId) {
 }
 
 .artist-card {
-  background: #1c1c1c;
-  border: 1px solid #303030;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--app-radius-md);
   padding: 0.8rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.artist-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.artist-card h3 {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
 }
 
 .cover {
@@ -90,23 +108,32 @@ async function unfollow(artistId) {
 }
 
 .artist-card p {
-  color: #b6b6b6;
+  color: var(--color-muted);
   margin-bottom: 0.5rem;
+  font-size: 0.85rem;
 }
 
 .artist-card button,
 .load-more {
-  border: 1px solid #4e4e4e;
-  background: transparent;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.artist-card button:hover:not(:disabled),
+.load-more:hover:not(:disabled) {
+  border-color: var(--color-accent-wine);
+  color: var(--color-accent-wine);
 }
 
 .load-more {
   margin-top: 1rem;
 }
 
-.error { color: #ffb4b4; }
-.empty { color: #bbbbbb; }
+.error { color: var(--color-accent-wine); }
+.empty { color: var(--color-muted); }
 </style>

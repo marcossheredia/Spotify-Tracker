@@ -107,24 +107,30 @@ async function transfer() {
 <style scoped>
 .player-view {
   min-height: calc(100vh - 64px);
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  color: var(--color-text);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .state-card,
 .queue-card {
   margin-top: 1rem;
-  background: #1a1a1a;
-  border: 1px solid #2f2f2f;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--app-radius-md);
   padding: 0.9rem;
+  box-shadow: var(--app-shadow-soft);
 }
 
 .controls,
@@ -138,13 +144,19 @@ async function transfer() {
 
 button,
 select {
-  border: 1px solid #4b4b4b;
-  background: #151515;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
 }
 
-.success { color: #9af0a8; margin-top: 0.8rem; }
-.error { color: #ffb4b4; margin-top: 0.8rem; }
+button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+.success { color: var(--color-success); margin-top: 0.8rem; }
+.error { color: var(--color-accent-wine); margin-top: 0.8rem; }
 </style>

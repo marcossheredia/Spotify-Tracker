@@ -145,12 +145,13 @@ onUnmounted(() => {
   position: sticky;
   top: 64px;
   z-index: 20;
-  background: rgba(18, 18, 18, 0.92);
+  background: rgba(253, 248, 239, 0.92);
   backdrop-filter: blur(7px);
-  border: 1px solid #2a2a2a;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 0.9rem;
   margin-bottom: 1rem;
+  box-shadow: var(--app-shadow-soft);
 }
 
 .toolbar-top-row {
@@ -165,14 +166,20 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid #343434;
-  background: #171717;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 10px;
   padding: 0.5rem 0.65rem;
+  transition: border-color 0.18s;
+}
+
+.search-wrapper:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(207, 163, 113, 0.18);
 }
 
 .search-icon {
-  color: #9f9f9f;
+  color: var(--color-muted-soft);
   font-size: 0.95rem;
 }
 
@@ -181,7 +188,7 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   outline: none;
-  color: #fff;
+  color: var(--color-text);
   font-size: 0.9rem;
 }
 
@@ -192,14 +199,14 @@ onUnmounted(() => {
 }
 
 .sort-wrapper label {
-  color: #afafaf;
+  color: var(--color-muted);
   font-size: 0.8rem;
 }
 
 .sort-wrapper select {
-  background: #1c1c1c;
-  border: 1px solid #343434;
-  color: #fff;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   border-radius: 9px;
   padding: 0.45rem 0.55rem;
   font-size: 0.85rem;
@@ -207,23 +214,24 @@ onUnmounted(() => {
 
 .view-toggle {
   display: inline-flex;
-  border: 1px solid #3a3a3a;
+  border: 1px solid var(--color-border);
   border-radius: 9px;
   overflow: hidden;
 }
 
 .view-btn {
   border: none;
-  background: #1a1a1a;
-  color: #bdbdbd;
+  background: var(--color-surface);
+  color: var(--color-muted);
   padding: 0.45rem 0.7rem;
   font-size: 0.82rem;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 
 .view-btn.active {
-  background: #2c2c2c;
-  color: #fff;
+  background: var(--color-surface-strong);
+  color: var(--color-primary);
 }
 
 .toolbar-chips {
@@ -234,19 +242,24 @@ onUnmounted(() => {
 }
 
 .chip {
-  border: 1px solid #3a3a3a;
-  background: #1b1b1b;
-  color: #d1d1d1;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
   border-radius: 999px;
   padding: 0.34rem 0.7rem;
   font-size: 0.78rem;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--color-accent);
 }
 
 .chip.active {
-  border-color: var(--color-accent, #1db954);
-  background: rgba(29, 185, 84, 0.16);
-  color: #fff;
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.16);
+  color: var(--color-primary);
 }
 
 @media (max-width: 900px) {

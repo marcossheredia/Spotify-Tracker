@@ -143,10 +143,8 @@ onUnmounted(() => {
 
 <style scoped>
 .dashboard {
-  min-height: 100vh;
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  min-height: calc(100vh - 64px);
+  color: var(--color-text);
 }
 
 .dashboard-now-playing {

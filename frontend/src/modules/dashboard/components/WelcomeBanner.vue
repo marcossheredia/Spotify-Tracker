@@ -28,10 +28,13 @@ defineProps({
 
 <style scoped>
 .dashboard-header {
-  background: linear-gradient(135deg, #1db954, #117a37);
-  border-radius: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(207, 163, 113, 0.22), transparent 38%),
+    linear-gradient(135deg, var(--color-primary), var(--color-primary-strong));
+  border-radius: var(--app-radius-lg);
   padding: 2rem;
   margin-bottom: 2rem;
+  color: var(--color-text-inverse);
 }
 
 .welcome {
@@ -49,24 +52,27 @@ defineProps({
 }
 
 .avatar-placeholder {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(233, 220, 186, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 700;
+  color: var(--color-accent-soft);
 }
 
 .greeting {
   font-size: 0.85rem;
-  opacity: 0.8;
+  opacity: 0.75;
   margin-bottom: 0.2rem;
+  color: var(--color-accent-soft);
 }
 
 h2 {
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 0.4rem;
+  color: var(--color-text-inverse);
 }
 
 .badge {
@@ -76,6 +82,8 @@ h2 {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(207, 163, 113, 0.25);
+  color: var(--color-accent-soft);
+  border: 1px solid rgba(233, 220, 186, 0.3);
 }
 </style>

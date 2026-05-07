@@ -116,24 +116,26 @@ function formatDate(value) {
 
 <style scoped>
 .playtime-card {
-  background: #282828;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--app-radius-md);
   padding: 1.5rem;
-  border: 1px solid #383838;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .playtime-card h3 {
   margin-bottom: 0.8rem;
   font-size: 1.1rem;
+  color: var(--color-text);
 }
 
 .section-message {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.9rem;
 }
 
 .section-message.error {
-  color: #ff8080;
+  color: var(--color-accent-wine);
 }
 
 .stats-grid {
@@ -143,7 +145,8 @@ function formatDate(value) {
 }
 
 .stats-item {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
   display: flex;
@@ -156,13 +159,14 @@ function formatDate(value) {
 }
 
 .stats-label {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.78rem;
 }
 
 .stats-value {
-  color: #fff;
+  color: var(--color-text);
   font-size: 1rem;
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {

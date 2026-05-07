@@ -60,30 +60,32 @@ defineProps({
 
 <style scoped>
 .top-artists-card {
-  background: #282828;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--app-radius-md);
   padding: 1.5rem;
-  border: 1px solid #383838;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .top-artists-card h3 {
   margin-bottom: 0.35rem;
   font-size: 1.1rem;
+  color: var(--color-text);
 }
 
 .period-hint {
-  color: #9c9c9c;
+  color: var(--color-muted-soft);
   font-size: 0.78rem;
   margin-bottom: 0.75rem;
 }
 
 .section-message {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.9rem;
 }
 
 .section-message.error {
-  color: #ff8080;
+  color: var(--color-accent-wine);
 }
 
 .artist-list {
@@ -99,7 +101,13 @@ defineProps({
   gap: 0.8rem;
   padding: 0.55rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
+  transition: border-color 0.15s;
+}
+
+.artist-item:hover {
+  border-color: var(--color-accent);
 }
 
 .artist-cover {
@@ -114,7 +122,8 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #3b3b3b;
+  background: var(--color-surface-strong);
+  color: var(--color-primary);
 }
 
 .artist-info {
@@ -122,7 +131,7 @@ defineProps({
 }
 
 .artist-name {
-  color: #fff;
+  color: var(--color-text);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -133,10 +142,11 @@ defineProps({
 
 a.artist-name:hover {
   text-decoration: underline;
+  color: var(--color-primary);
 }
 
 .artist-meta {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.8rem;
   margin-top: 0.18rem;
   white-space: nowrap;

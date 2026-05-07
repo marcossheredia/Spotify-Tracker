@@ -86,22 +86,24 @@ const emit = defineEmits(["select", "preview"]);
 }
 
 .playlist-item {
-  border: 1px solid #303030;
-  background: #1a1a1a;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 0.55rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.65rem;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .playlist-item:hover {
-  border-color: #4d4d4d;
+  border-color: var(--color-accent);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .playlist-item.active {
-  border-color: var(--color-accent, #1db954);
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.06);
 }
 
 .item-main {
@@ -127,7 +129,8 @@ const emit = defineEmits(["select", "preview"]);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #3b3b3b;
+  background: var(--color-surface-strong);
+  color: var(--color-primary);
 }
 
 .playlist-info {
@@ -135,14 +138,14 @@ const emit = defineEmits(["select", "preview"]);
 }
 
 .playlist-name {
-  color: #fff;
+  color: var(--color-text);
   font-size: 0.94rem;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .playlist-meta {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.78rem;
   margin-top: 0.12rem;
 }
@@ -156,20 +159,22 @@ const emit = defineEmits(["select", "preview"]);
 
 .badge {
   font-size: 0.68rem;
-  border: 1px solid #4b4b4b;
-  color: #cfcfcf;
+  border: 1px solid rgba(207, 163, 113, 0.35);
+  color: var(--color-primary);
   border-radius: 999px;
   padding: 0.14rem 0.42rem;
+  background: rgba(207, 163, 113, 0.12);
 }
 
 .badge-liked {
-  border-color: var(--color-accent, #1db954);
-  color: #fff;
+  border-color: var(--color-accent-wine);
+  color: var(--color-accent-wine);
+  background: rgba(94, 33, 40, 0.08);
 }
 
 .preview-text {
   margin-top: 0.4rem;
-  color: #a5a5a5;
+  color: var(--color-muted-soft);
   font-size: 0.74rem;
 }
 
@@ -180,23 +185,29 @@ const emit = defineEmits(["select", "preview"]);
 }
 
 .detail-btn {
-  border: 1px solid #4b4b4b;
-  background: #242424;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 8px;
   padding: 0.35rem 0.58rem;
   font-size: 0.76rem;
   cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.detail-btn:hover {
+  border-color: var(--color-accent);
 }
 
 .spotify-link {
-  color: #bdbdbd;
+  color: var(--color-muted);
   text-decoration: none;
   font-size: 0.74rem;
 }
 
 .spotify-link:hover {
   text-decoration: underline;
+  color: var(--color-primary);
 }
 
 @media (max-width: 900px) {

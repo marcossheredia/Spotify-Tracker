@@ -20,19 +20,21 @@ defineProps({
 
 <style scoped>
 .placeholder-section {
-  background: #282828;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border-radius: var(--app-radius-md);
   padding: 1.5rem;
-  border: 1px solid #383838;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .placeholder-section h3 {
   margin-bottom: 0.6rem;
   font-size: 1.1rem;
+  color: var(--color-text);
 }
 
 .placeholder-section p {
-  color: #b3b3b3;
+  color: var(--color-muted);
   font-size: 0.9rem;
 }
 </style>

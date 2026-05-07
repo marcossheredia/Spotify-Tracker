@@ -8,15 +8,50 @@
 }
 
 :root {
-  --color-accent: #1db954;
-  --color-accent-soft: #1ed760;
-  --color-green:   var(--color-accent);
-  --color-green-l: var(--color-accent-soft);
-  --color-bg:      #121212;
-  --color-surface: #282828;
-  --color-border:  #383838;
-  --color-text:    #ffffff;
-  --color-muted:   #b3b3b3;
+  /* Fondos */
+  --color-bg: #FAF4EB;
+  --color-surface: #FDF8EF;
+  --color-surface-soft: #F7EFE3;
+  --color-surface-strong: #E9DCBA;
+
+  /* Primarios (verde petróleo) */
+  --color-primary: #123237;
+  --color-primary-strong: #163B41;
+  --color-primary-soft: #24464A;
+
+  /* Acento dorado/beige */
+  --color-accent: #CFA371;
+  --color-accent-soft: #E9DCBA;
+  --color-accent-wine: #5E2128;
+  --color-accent-beige: #D2B596;
+
+  /* Aliases de compatibilidad (componentes que usaban --color-green) */
+  --color-green: #CFA371;
+  --color-green-l: #E9DCBA;
+
+  /* Texto */
+  --color-text: #2A2520;
+  --color-text-inverse: #FDF8EF;
+  --color-muted: #5D6057;
+  --color-muted-soft: #A1A19C;
+
+  /* Bordes */
+  --color-border: #E6D7BC;
+  --color-border-soft: #F0E5D2;
+
+  /* Semánticos */
+  --color-success: #3D6B57;
+  --color-warning: #B98549;
+  --color-danger: #7A2F35;
+
+  /* Radio y sombras */
+  --app-radius-sm: 8px;
+  --app-radius-md: 14px;
+  --app-radius-lg: 22px;
+  --app-shadow-card: 0 18px 45px rgba(18, 50, 55, 0.12);
+  --app-shadow-soft: 0 10px 28px rgba(18, 50, 55, 0.08);
+  --app-page-padding: clamp(1rem, 3vw, 2rem);
+
   font-size: 16px;
 }
 

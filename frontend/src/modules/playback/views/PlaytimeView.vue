@@ -37,9 +37,7 @@ onMounted(() => {
 <style scoped>
 .playtime-view {
   min-height: calc(100vh - 64px);
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  color: var(--color-text);
 }
 
 .view-header {
@@ -49,15 +47,17 @@ onMounted(() => {
 .view-header h1 {
   font-size: 1.5rem;
   margin-bottom: 0.35rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .view-header p {
-  color: #b3b3b3;
+  color: var(--color-muted);
 }
 
 @media (max-width: 768px) {
   .playtime-view {
-    padding: 1rem;
+    padding: 0;
   }
 }
 </style>

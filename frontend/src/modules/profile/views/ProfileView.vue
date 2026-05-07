@@ -47,19 +47,25 @@ onMounted(() => {
 <style scoped>
 .profile-view {
   min-height: calc(100vh - 64px);
-  padding: 2rem;
-  background: #121212;
-  color: #fff;
+  color: var(--color-text);
+}
+
+.profile-view h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
 }
 
 .profile-card {
   margin-top: 1rem;
   display: flex;
   gap: 1rem;
-  background: #1c1c1c;
-  border: 1px solid #303030;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--app-radius-md);
   padding: 1rem;
+  box-shadow: var(--app-shadow-soft);
 }
 
 .avatar {
@@ -67,25 +73,43 @@ onMounted(() => {
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--color-border);
+}
+
+.profile-data h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
 }
 
 .profile-data p {
   margin: 0.3rem 0;
-  color: #c6c6c6;
+  color: var(--color-muted);
 }
 
 .spotify-link {
   margin-top: 0.5rem;
   display: inline-block;
-  color: #1db954;
+  color: var(--color-primary);
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.spotify-link:hover {
+  border-color: var(--color-accent);
 }
 
 .note {
   margin-top: 0.7rem;
   font-size: 0.88rem;
-  color: #9ea09f;
+  color: var(--color-muted-soft);
 }
 
-.error { color: #ffb4b4; }
-.loading { color: #c8c8c8; }
+.error { color: var(--color-accent-wine); }
+.loading { color: var(--color-muted); }
 </style>

@@ -118,8 +118,8 @@ watch(() => route.fullPath, closeMenu);
   justify-content: space-between;
   padding: 0 2rem;
   height: 64px;
-  background: #000;
-  border-bottom: 1px solid #282828;
+  background: linear-gradient(135deg, #0F2D32, #123237, #163B41);
+  border-bottom: 1px solid rgba(233, 220, 186, 0.18);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -136,13 +136,13 @@ watch(() => route.fullPath, closeMenu);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #fff;
+  color: var(--color-accent-soft);
   text-decoration: none;
   font-weight: 700;
   font-size: 1rem;
 }
 
-.brand-icon { width: 24px; height: 24px; color: var(--color-accent, #1db954); }
+.brand-icon { width: 24px; height: 24px; color: var(--color-accent); }
 
 .nav-menu {
   position: relative;
@@ -152,16 +152,18 @@ watch(() => route.fullPath, closeMenu);
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: #121212;
-  border: 1px solid #3d3d3d;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(233, 220, 186, 0.25);
+  color: var(--color-accent-soft);
   border-radius: 8px;
   padding: 0.4rem 0.65rem;
   cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
 }
 
 .menu-toggle:hover {
-  border-color: #6a6a6a;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(233, 220, 186, 0.45);
 }
 
 .menu-icon {
@@ -178,25 +180,27 @@ watch(() => route.fullPath, closeMenu);
   left: 0;
   top: calc(100% + 0.45rem);
   min-width: 220px;
-  background: #1a1a1a;
-  border: 1px solid #343434;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--app-shadow-card);
   overflow: hidden;
   z-index: 120;
 }
 
 .menu-item {
   display: block;
-  color: #fff;
+  color: var(--color-text);
   text-decoration: none;
   padding: 0.7rem 0.9rem;
   font-size: 0.9rem;
+  transition: background 0.15s;
 }
 
 .menu-item:hover,
 .menu-item.router-link-active {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(207, 163, 113, 0.13);
+  color: var(--color-primary);
 }
 
 .nav-user {
@@ -205,20 +209,21 @@ watch(() => route.fullPath, closeMenu);
   gap: 1rem;
 }
 
-.user-name { color: #b3b3b3; font-size: 0.9rem; }
+.user-name { color: var(--color-accent-soft); font-size: 0.9rem; opacity: 0.85; }
 
 .logout-btn {
-  background: transparent;
-  border: 1px solid #535353;
-  color: #fff;
+  background: var(--color-accent-wine);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-text-inverse);
   border-radius: 500px;
   padding: 0.35rem 1rem;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: border-color 0.2s;
+  font-weight: 600;
+  transition: opacity 0.2s;
 }
 
-.logout-btn:hover { border-color: #fff; }
+.logout-btn:hover { opacity: 0.85; }
 
 @media (max-width: 768px) {
   .navbar {

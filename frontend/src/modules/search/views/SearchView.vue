@@ -100,9 +100,14 @@ watch([query, selectedTypes], () => {
 <style scoped>
 .search-view {
   min-height: calc(100vh - 64px);
-  background: #121212;
-  color: #fff;
-  padding: 2rem;
+  color: var(--color-text);
+}
+
+.search-view header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
 }
 
 .search-controls {
@@ -112,34 +117,50 @@ watch([query, selectedTypes], () => {
 }
 
 .search-controls input[type="search"] {
-  background: #1d1d1d;
-  border: 1px solid #3e3e3e;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 0.7rem;
-  color: #fff;
+  color: var(--color-text);
+  font-family: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.search-controls input[type="search"]:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(207, 163, 113, 0.18);
 }
 
 .types {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-  color: #c2c2c2;
+  color: var(--color-muted);
 }
 
 .group {
   margin-top: 1rem;
-  background: #1a1a1a;
-  border: 1px solid #2f2f2f;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 0.8rem;
+  box-shadow: var(--app-shadow-soft);
+}
+
+.group h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .group ul {
   margin-top: 0.4rem;
   padding-left: 1.2rem;
+  color: var(--color-muted);
 }
 
-.loading { color: #cfcfcf; margin-top: 1rem; }
-.error { color: #ffb4b4; margin-top: 1rem; }
-.empty { color: #b5b5b5; margin-top: 1rem; }
+.loading { color: var(--color-muted); margin-top: 1rem; }
+.error { color: var(--color-accent-wine); margin-top: 1rem; }
+.empty { color: var(--color-muted); margin-top: 1rem; }
 </style>

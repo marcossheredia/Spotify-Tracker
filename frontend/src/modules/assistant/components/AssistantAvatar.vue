@@ -68,11 +68,11 @@ const altText = computed(() =>
 
 <style scoped>
 .assistant-avatar-card {
-  background: linear-gradient(160deg, rgba(26, 26, 38, 0.95), rgba(20, 20, 30, 0.9));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
   padding: 1.5rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--app-shadow-card);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -84,7 +84,7 @@ const altText = computed(() =>
   aspect-ratio: 4 / 5;
   border-radius: 18px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--color-surface-strong);
 }
 
 .assistant-avatar-image {
@@ -115,6 +115,8 @@ const altText = computed(() =>
 .assistant-avatar-name {
   font-size: 1.2rem;
   margin: 0;
+  color: var(--color-text);
+  font-weight: 700;
 }
 
 .assistant-avatar-status {
@@ -126,18 +128,20 @@ const altText = computed(() =>
 }
 
 .assistant-avatar-status.is-idle {
-  background: rgba(46, 213, 115, 0.18);
-  color: #8ef0b0;
+  background: rgba(61, 107, 87, 0.15);
+  color: var(--color-success);
+  border: 1px solid rgba(61, 107, 87, 0.3);
 }
 
 .assistant-avatar-status.is-generating {
-  background: rgba(90, 190, 255, 0.2);
-  color: #a6d9ff;
+  background: rgba(185, 133, 73, 0.18);
+  color: var(--color-warning);
+  border: 1px solid rgba(185, 133, 73, 0.35);
 }
 
 .assistant-avatar-description {
   margin: 0;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-muted);
   line-height: 1.5;
 }
 
@@ -147,13 +151,13 @@ const altText = computed(() =>
 
 @keyframes avatarPulse {
   0% {
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--app-shadow-card);
   }
   50% {
-    box-shadow: 0 20px 55px rgba(90, 190, 255, 0.35);
+    box-shadow: 0 20px 55px rgba(207, 163, 113, 0.35);
   }
   100% {
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--app-shadow-card);
   }
 }
 </style>

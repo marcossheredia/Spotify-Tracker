@@ -49,7 +49,6 @@ onMounted(async () => {
 <style scoped>
 .callback-page {
   min-height: 100vh;
-  background: #121212;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,15 +56,20 @@ onMounted(async () => {
 
 .callback-card {
   text-align: center;
-  color: #fff;
+  color: var(--color-accent-soft);
   font-size: 1.1rem;
+  padding: 2rem;
+  background: rgba(253, 248, 239, 0.10);
+  border: 1px solid rgba(233, 220, 186, 0.25);
+  border-radius: var(--app-radius-lg);
+  backdrop-filter: blur(8px);
 }
 
 .spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid rgba(29,185,84,0.3);
-  border-top-color: #1db954;
+  border: 4px solid rgba(207, 163, 113, 0.3);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1.5rem;
@@ -73,15 +77,19 @@ onMounted(async () => {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.error-msg { color: #e74c3c; margin-bottom: 1rem; }
+.error-msg { color: #f4a4a4; margin-bottom: 1rem; }
 
 .btn-home {
   display: inline-block;
   padding: 0.6rem 1.4rem;
-  background: #1db954;
-  color: #000;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   border-radius: 500px;
   font-weight: 600;
   text-decoration: none;
+  border: 1px solid rgba(233, 220, 186, 0.35);
+  transition: opacity 0.2s;
 }
+
+.btn-home:hover { opacity: 0.85; }
 </style>

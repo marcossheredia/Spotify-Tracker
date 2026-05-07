@@ -114,9 +114,7 @@ async function removeAlbum(albumId) {
 <style scoped>
 .library-view {
   min-height: calc(100vh - 64px);
-  padding: 2rem;
-  background: #121212;
-  color: #fff;
+  color: var(--color-text);
 }
 
 .header {
@@ -127,21 +125,35 @@ async function removeAlbum(albumId) {
   margin-bottom: 1rem;
 }
 
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
 .tabs {
   display: flex;
   gap: 0.5rem;
 }
 
 .tabs button {
-  border: 1px solid #3f3f3f;
-  background: #191919;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tabs button:hover {
+  border-color: var(--color-accent);
 }
 
 .tabs .active {
-  border-color: #1db954;
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.16);
+  color: var(--color-primary);
 }
 
 .list {
@@ -153,34 +165,58 @@ async function removeAlbum(albumId) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1b1b1b;
-  border: 1px solid #2f2f2f;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 0.8rem;
+  transition: border-color 0.15s;
+}
+
+.row:hover {
+  border-color: var(--color-accent);
+}
+
+.row h3 {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  margin-bottom: 0.15rem;
 }
 
 .row p {
-  color: #b0b0b0;
+  color: var(--color-muted);
   font-size: 0.9rem;
 }
 
 .row button {
-  border: 1px solid #474747;
-  background: transparent;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.row button:hover:not(:disabled) {
+  border-color: var(--color-accent-wine);
+  color: var(--color-accent-wine);
 }
 
 .load-more {
   margin-top: 0.8rem;
-  border: 1px solid #474747;
-  background: transparent;
-  color: #fff;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
 }
 
-.empty { color: #bcbcbc; }
-.error { color: #ffb4b4; }
+.load-more:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+.empty { color: var(--color-muted); }
+.error { color: var(--color-accent-wine); }
 </style>

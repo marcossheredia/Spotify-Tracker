@@ -3,6 +3,7 @@
   --app-radius-sm: 8px;
   --app-radius-md: 14px;
   --app-radius-lg: 22px;
-  --app-shadow-card: 0 18px 45px rgba(0, 0, 0, 0.25);
+  --app-shadow-card: 0 18px 45px rgba(18, 50, 55, 0.12);
+  --app-shadow-soft: 0 10px 28px rgba(18, 50, 55, 0.08);
   --app-page-padding: clamp(1rem, 3vw, 2rem);
 }

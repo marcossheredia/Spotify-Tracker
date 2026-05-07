@@ -16,9 +16,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  background: #1db954;
-  color: #000;
-  border: none;
+  background: var(--color-primary);
+  color: var(--color-accent-soft);
+  border: 1px solid rgba(233, 220, 186, 0.4);
   border-radius: 500px;
   padding: 0.875rem 2.5rem;
   font-size: 1rem;
@@ -28,11 +28,12 @@
   transition: background 0.2s, transform 0.1s;
 }
 
-.spotify-btn:hover  { background: #1ed760; }
+.spotify-btn:hover  { background: var(--color-primary-strong); }
 .spotify-btn:active { transform: scale(0.97); }
 
 .btn-icon {
   width: 22px;
   height: 22px;
+  color: var(--color-accent);
 }
 </style>
