@@ -45,9 +45,6 @@
           <RouterLink to="/playlists" class="menu-item" @click="closeMenu">
             Tus Playlist
           </RouterLink>
-          <RouterLink to="/appearance" class="menu-item" @click="closeMenu">
-            Apariencia
-          </RouterLink>
         </div>
       </div>
 
