@@ -42,9 +42,6 @@
           <RouterLink to="/playtime" class="menu-item" @click="closeMenu">
             Tiempo Escuchado
           </RouterLink>
-          <RouterLink to="/playlists" class="menu-item" @click="closeMenu">
-            Tus Playlist
-          </RouterLink>
         </div>
       </div>
 

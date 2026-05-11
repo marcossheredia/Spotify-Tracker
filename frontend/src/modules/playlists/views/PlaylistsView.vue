@@ -1,8 +1,17 @@
 <template>
   <div class="playlists-view">
     <header class="view-header">
-      <h1>Tus Playlist</h1>
-      <p>Explora tus playlists con filtros, orden por recientes y detalle de canciones.</p>
+      <div class="view-heading">
+        <h1>Tus Playlist</h1>
+        <p>Explora tus playlists con filtros, orden por recientes y detalle de canciones.</p>
+      </div>
+      <div class="tabs">
+        <button type="button" @click="goToLibrary('tracks')">Canciones</button>
+        <button type="button" @click="goToLibrary('albums')">Albumes</button>
+        <button type="button" :class="{ active: isPlaylistsActive }" @click="goToPlaylists">
+          Playlists
+        </button>
+      </div>
     </header>
 
     <PlaylistToolbar
@@ -83,6 +92,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import PlaylistToolbar from "@/modules/playlists/components/PlaylistToolbar.vue";
 import RecentPlaylistsCard from "@/modules/playlists/components/RecentPlaylistsCard.vue";
 import PlaylistGrid from "@/modules/playlists/components/PlaylistGrid.vue";
@@ -92,6 +102,9 @@ import { useRecentPlaylists } from "@/modules/playlists/composables/useRecentPla
 
 const PLAYLISTS_VIEW_MODE_STORAGE_KEY = "spotify_tracker_playlists_view_mode";
 
+const route = useRoute();
+const router = useRouter();
+
 const searchQuery = ref("");
 const sortBy = ref("recent");
 const activeFilter = ref("all");
@@ -99,6 +112,7 @@ const playlistSource = ref("recent");
 const selectedPlaylistId = ref("");
 const detailTrackFilter = ref("all");
 const viewMode = ref(resolveInitialViewMode());
+const isPlaylistsActive = computed(() => route.path.startsWith("/playlists"));
 
 const {
   playlists: recentPlaylists,
@@ -286,6 +300,15 @@ function warmupPlaylistsPreview() {
     }
   }
 }
+
+function goToLibrary(tab) {
+  const targetTab = tab === "albums" ? "albums" : "tracks";
+  router.push({ path: "/library", query: { tab: targetTab } });
+}
+
+function goToPlaylists() {
+  router.push("/playlists");
+}
 </script>
 
 <style scoped>
@@ -296,6 +319,14 @@ function warmupPlaylistsPreview() {
 
 .view-header {
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.view-heading {
+  min-width: 0;
 }
 
 .view-header h1 {
@@ -308,6 +339,33 @@ function warmupPlaylistsPreview() {
 .view-header p {
   color: var(--color-muted);
   max-width: 700px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tabs button {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tabs button:hover {
+  border-color: var(--color-accent);
+}
+
+.tabs .active {
+  border-color: var(--color-accent);
+  background: rgba(207, 163, 113, 0.16);
+  color: var(--color-primary);
 }
 
 .source-toggle {
@@ -359,6 +417,15 @@ function warmupPlaylistsPreview() {
 
   .view-header h1 {
     font-size: 1.42rem;
+  }
+
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabs {
+    justify-content: flex-start;
   }
 }
 </style>

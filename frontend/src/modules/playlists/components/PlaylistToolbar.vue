@@ -31,17 +31,30 @@
           type="button"
           class="view-btn"
           :class="{ active: viewMode === 'list' }"
+          title="Vista lista"
+          aria-label="Vista lista"
           @click="emitViewModeChange('list')"
         >
-          Lista
+          <span class="view-icon view-icon-list">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
         </button>
         <button
           type="button"
           class="view-btn"
           :class="{ active: viewMode === 'grid' }"
+          title="Vista grid"
+          aria-label="Vista grid"
           @click="emitViewModeChange('grid')"
         >
-          Grid
+          <span class="view-icon view-icon-grid">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
         </button>
       </div>
     </div>
@@ -223,8 +236,7 @@ onUnmounted(() => {
   border: none;
   background: var(--color-surface);
   color: var(--color-muted);
-  padding: 0.45rem 0.7rem;
-  font-size: 0.82rem;
+  padding: 0.45rem 0.6rem;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
@@ -232,6 +244,35 @@ onUnmounted(() => {
 .view-btn.active {
   background: var(--color-surface-strong);
   color: var(--color-primary);
+}
+
+.view-icon {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  gap: 3px;
+}
+
+.view-icon-list {
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.view-icon-list span {
+  display: block;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.view-icon-grid {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.view-icon-grid span {
+  display: block;
+  border-radius: 4px;
+  background: currentColor;
 }
 
 .toolbar-chips {
