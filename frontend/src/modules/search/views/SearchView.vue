@@ -24,32 +24,127 @@
 
     <div v-if="results.tracks?.length" class="group">
       <h2>Tracks</h2>
-      <ul>
-        <li v-for="track in results.tracks" :key="track.id">
-          {{ track.name }} · {{ (track.artists || []).join(', ') }}
-        </li>
-      </ul>
+      <div class="result-grid">
+        <article v-for="track in results.tracks" :key="track.id" class="result-card">
+          <div class="result-cover">
+            <img v-if="track.imageUrl" :src="track.imageUrl" :alt="track.name" />
+            <div v-else class="result-cover-placeholder">♪</div>
+          </div>
+          <div class="result-body">
+            <a
+              v-if="track.externalUrl"
+              :href="track.externalUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="result-title"
+            >
+              {{ track.name }}
+            </a>
+            <p v-else class="result-title">{{ track.name }}</p>
+            <p class="result-meta">{{ (track.artists || []).join(', ') }}</p>
+            <p v-if="track.albumName" class="result-meta">Album: {{ track.albumName }}</p>
+            <p v-if="track.popularity != null" class="result-meta">
+              Popularidad: {{ track.popularity }}
+            </p>
+          </div>
+        </article>
+      </div>
     </div>
 
     <div v-if="results.artists?.length" class="group">
       <h2>Artistas</h2>
-      <ul>
-        <li v-for="artist in results.artists" :key="artist.id">{{ artist.name }}</li>
-      </ul>
+      <div class="result-grid">
+        <article v-for="artist in results.artists" :key="artist.id" class="result-card">
+          <div class="result-cover is-round">
+            <img v-if="artist.imageUrl" :src="artist.imageUrl" :alt="artist.name" />
+            <div v-else class="result-cover-placeholder">★</div>
+          </div>
+          <div class="result-body">
+            <a
+              v-if="artist.externalUrl"
+              :href="artist.externalUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="result-title"
+            >
+              {{ artist.name }}
+            </a>
+            <p v-else class="result-title">{{ artist.name }}</p>
+            <p v-if="artist.genres?.length" class="result-meta">
+              {{ artist.genres.join(', ') }}
+            </p>
+            <p v-if="artist.followersTotal != null" class="result-meta">
+              Seguidores: {{ artist.followersTotal }}
+            </p>
+            <p v-if="artist.popularity != null" class="result-meta">
+              Popularidad: {{ artist.popularity }}
+            </p>
+          </div>
+        </article>
+      </div>
     </div>
 
     <div v-if="results.albums?.length" class="group">
       <h2>Albumes</h2>
-      <ul>
-        <li v-for="album in results.albums" :key="album.id">{{ album.name }}</li>
-      </ul>
+      <div class="result-grid">
+        <article v-for="album in results.albums" :key="album.id" class="result-card">
+          <div class="result-cover">
+            <img v-if="album.imageUrl" :src="album.imageUrl" :alt="album.name" />
+            <div v-else class="result-cover-placeholder">▣</div>
+          </div>
+          <div class="result-body">
+            <a
+              v-if="album.externalUrl"
+              :href="album.externalUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="result-title"
+            >
+              {{ album.name }}
+            </a>
+            <p v-else class="result-title">{{ album.name }}</p>
+            <p class="result-meta">{{ (album.artists || []).join(', ') }}</p>
+            <p v-if="album.releaseDate" class="result-meta">Lanzamiento: {{ album.releaseDate }}</p>
+            <p v-if="album.totalTracks != null" class="result-meta">
+              Total canciones: {{ album.totalTracks }}
+            </p>
+            <p v-if="album.albumType" class="result-meta">Tipo: {{ album.albumType }}</p>
+          </div>
+        </article>
+      </div>
     </div>
 
     <div v-if="results.playlists?.length" class="group">
       <h2>Playlists</h2>
-      <ul>
-        <li v-for="playlist in results.playlists" :key="playlist.id">{{ playlist.name }}</li>
-      </ul>
+      <div class="result-grid">
+        <article v-for="playlist in results.playlists" :key="playlist.id" class="result-card">
+          <div class="result-cover">
+            <img v-if="playlist.imageUrl" :src="playlist.imageUrl" :alt="playlist.name" />
+            <div v-else class="result-cover-placeholder">≡</div>
+          </div>
+          <div class="result-body">
+            <a
+              v-if="playlist.externalUrl"
+              :href="playlist.externalUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="result-title"
+            >
+              {{ playlist.name }}
+            </a>
+            <p v-else class="result-title">{{ playlist.name }}</p>
+            <p v-if="playlist.ownerName" class="result-meta">Owner: {{ playlist.ownerName }}</p>
+            <p v-if="playlist.tracksTotal != null" class="result-meta">
+              Canciones: {{ playlist.tracksTotal }}
+            </p>
+            <p v-if="playlist.publicPlaylist != null" class="result-meta">
+              {{ playlist.publicPlaylist ? "Publica" : "Privada" }}
+              <span v-if="playlist.collaborative"> · Colaborativa</span>
+            </p>
+            <p v-else-if="playlist.collaborative" class="result-meta">Colaborativa</p>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 </template>
@@ -154,10 +249,82 @@ watch([query, selectedTypes], () => {
   color: var(--color-text);
 }
 
-.group ul {
-  margin-top: 0.4rem;
-  padding-left: 1.2rem;
+.result-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.result-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.result-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.result-cover {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-surface-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-cover.is-round {
+  border-radius: 999px;
+}
+
+.result-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.result-cover-placeholder {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.result-body {
+  min-width: 0;
+}
+
+.result-title {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+a.result-title:hover {
+  text-decoration: underline;
+  color: var(--color-primary);
+}
+
+.result-meta {
   color: var(--color-muted);
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .loading { color: var(--color-muted); margin-top: 1rem; }

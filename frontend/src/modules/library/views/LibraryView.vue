@@ -15,11 +15,23 @@
       <p v-else-if="!tracksPage.items?.length" class="empty">No tienes canciones guardadas.</p>
       <div v-else class="list">
         <article v-for="track in tracksPage.items" :key="track.id" class="row">
-          <div>
-            <h3>{{ track.name }}</h3>
-            <p>{{ (track.artists || []).join(', ') }} · {{ track.albumName }}</p>
+          <div class="row-main">
+            <img
+              v-if="track.imageUrl"
+              :src="track.imageUrl"
+              :alt="track.name"
+              class="row-cover"
+            />
+            <div v-else class="row-cover row-cover-placeholder">♪</div>
+
+            <div class="row-info">
+              <h3 class="row-title">{{ track.name }}</h3>
+              <p class="row-meta">
+                {{ (track.artists || []).join(', ') }} · {{ track.albumName || "Album no disponible" }}
+              </p>
+            </div>
           </div>
-          <button :disabled="mutating" @click="removeTrack(track.id)">Quitar</button>
+          <button class="row-action" :disabled="mutating" @click="removeTrack(track.id)">Quitar</button>
         </article>
       </div>
 
@@ -38,11 +50,24 @@
       <p v-else-if="!albumsPage.items?.length" class="empty">No tienes albumes guardados.</p>
       <div v-else class="list">
         <article v-for="album in albumsPage.items" :key="album.id" class="row">
-          <div>
-            <h3>{{ album.name }}</h3>
-            <p>{{ (album.artists || []).join(', ') }} · {{ album.releaseDate || 'Fecha no disponible' }}</p>
+          <div class="row-main">
+            <img
+              v-if="album.imageUrl"
+              :src="album.imageUrl"
+              :alt="album.name"
+              class="row-cover"
+            />
+            <div v-else class="row-cover row-cover-placeholder">▣</div>
+
+            <div class="row-info">
+              <h3 class="row-title">{{ album.name }}</h3>
+              <p class="row-meta">
+                {{ (album.artists || []).join(', ') }} ·
+                {{ album.releaseDate || "Fecha no disponible" }}
+              </p>
+            </div>
           </div>
-          <button :disabled="mutating" @click="removeAlbum(album.id)">Quitar</button>
+          <button class="row-action" :disabled="mutating" @click="removeAlbum(album.id)">Quitar</button>
         </article>
       </div>
 
@@ -165,6 +190,8 @@ async function removeAlbum(albumId) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 10px;
@@ -176,18 +203,54 @@ async function removeAlbum(albumId) {
   border-color: var(--color-accent);
 }
 
-.row h3 {
+.row-main {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.row-cover {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-surface-soft);
+}
+
+.row-cover-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  background: var(--color-surface-soft);
+  border: 1px dashed var(--color-border-soft);
+}
+
+.row-info {
+  min-width: 0;
+}
+
+.row-title {
   font-size: 0.95rem;
   color: var(--color-text);
   margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.row p {
+.row-meta {
   color: var(--color-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.row button {
+.row-action {
   border: 1px solid var(--color-border);
   background: var(--color-surface-soft);
   color: var(--color-text);
@@ -195,9 +258,10 @@ async function removeAlbum(albumId) {
   padding: 0.3rem 0.8rem;
   cursor: pointer;
   transition: border-color 0.15s;
+  flex-shrink: 0;
 }
 
-.row button:hover:not(:disabled) {
+.row-action:hover:not(:disabled) {
   border-color: var(--color-accent-wine);
   color: var(--color-accent-wine);
 }

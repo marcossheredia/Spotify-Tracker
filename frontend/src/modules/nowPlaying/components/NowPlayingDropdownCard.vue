@@ -1,6 +1,11 @@
 <template>
-  <details class="now-playing-card">
-    <summary class="now-playing-summary">
+  <div class="now-playing-card" :class="{ open: isOpen }">
+    <button
+      class="now-playing-summary"
+      type="button"
+      :aria-expanded="isOpen.toString()"
+      @click="toggleOpen"
+    >
       <div class="summary-main">
         <span class="summary-icon">▶</span>
         <div class="summary-text">
@@ -9,9 +14,9 @@
         </div>
       </div>
       <span class="summary-caret">▾</span>
-    </summary>
+    </button>
 
-    <div class="now-playing-content">
+    <div v-if="isOpen" class="now-playing-content">
       <p v-if="loading" class="section-message">Cargando reproduccion actual...</p>
       <p v-else-if="error" class="section-message error">{{ error }}</p>
       <p v-else-if="!track" class="section-message">No hay ninguna cancion sonando ahora mismo.</p>
@@ -49,12 +54,22 @@
         </div>
         <p class="progress-label">{{ track.progressLabel }}</p>
       </div>
+
+      <a
+        v-if="track && track.externalUrl"
+        :href="track.externalUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="spotify-link"
+      >
+        Abrir en Spotify
+      </a>
     </div>
-  </details>
+  </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
   track: {
@@ -86,6 +101,12 @@ const summarySubtitle = computed(() => {
 
   return `${props.track.name} - ${props.track.artistsLabel}`;
 });
+
+const isOpen = ref(true);
+
+function toggleOpen() {
+  isOpen.value = !isOpen.value;
+}
 </script>
 
 <style scoped>
@@ -100,15 +121,16 @@ const summarySubtitle = computed(() => {
 }
 
 .now-playing-summary {
-  list-style: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-}
-
-.now-playing-summary::-webkit-details-marker {
-  display: none;
+  color: inherit;
+  text-align: left;
 }
 
 .summary-main {
@@ -155,7 +177,7 @@ const summarySubtitle = computed(() => {
   transition: transform 0.2s ease;
 }
 
-.now-playing-card[open] .summary-caret {
+.now-playing-card.open .summary-caret {
   transform: rotate(180deg);
 }
 
@@ -226,6 +248,20 @@ a.track-name:hover {
   font-size: 0.8rem;
   margin-top: 0.2rem;
   font-weight: 600;
+}
+
+.spotify-link {
+  display: inline-flex;
+  margin-top: 0.75rem;
+  color: var(--color-text-inverse);
+  font-size: 0.82rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.spotify-link:hover {
+  color: var(--color-accent-soft);
+  text-decoration: underline;
 }
 
 .progress-block {
