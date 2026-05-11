@@ -1,5 +1,5 @@
-const LOCAL_BACKEND_FALLBACK = "http://localhost:8080";
-const LOCAL_FRONTEND_FALLBACK = "http://localhost:3000";
+const LOCAL_BACKEND_FALLBACK = "http://127.0.0.1:8080";
+const LOCAL_FRONTEND_FALLBACK = "http://127.0.0.1:5173";
 
 function normalizeBrowserHost(hostname) {
   if (!hostname) {

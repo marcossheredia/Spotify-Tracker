@@ -39,7 +39,7 @@ public class SpotifyAuthorizationRequestResolver implements OAuth2AuthorizationR
         }
 
         Map<String, Object> params = new HashMap<>(request.getAdditionalParameters());
-        params.put("show_dialog", "true");
+        params.put("show_dialog", "false");
 
         return OAuth2AuthorizationRequest.from(request)
             .additionalParameters(params)
