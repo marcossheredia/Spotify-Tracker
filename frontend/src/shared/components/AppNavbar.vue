@@ -18,9 +18,6 @@
           id="main-left-menu"
           class="menu-dropdown"
         >
-          <RouterLink to="/profile" class="menu-item" @click="closeMenu">
-            Perfil
-          </RouterLink>
           <RouterLink to="/library" class="menu-item" @click="closeMenu">
             Biblioteca
           </RouterLink>
@@ -54,7 +51,91 @@
     </div>
 
     <div class="nav-user">
-      <span class="user-name">{{ user?.displayName }}</span>
+      <div
+        ref="profileRoot"
+        class="profile-menu"
+        @mouseenter="openProfileMenu"
+        @mouseleave="closeProfileMenu"
+      >
+        <button
+          type="button"
+          class="profile-avatar-btn"
+          :aria-expanded="String(profileOpen)"
+          aria-controls="profile-dropdown"
+          @click.stop="toggleProfileMenu"
+        >
+          <img
+            v-if="profileData?.imageUrl"
+            :src="profileData.imageUrl"
+            :alt="profileData?.displayName || 'Usuario Spotify'"
+            class="profile-avatar-img"
+          />
+          <span v-else class="profile-avatar-fallback">
+            {{ profileInitial }}
+          </span>
+        </button>
+
+        <div v-if="profileOpen" id="profile-dropdown" class="profile-dropdown">
+          <p v-if="profileLoading" class="profile-dropdown-status">Cargando perfil...</p>
+          <p v-else-if="profileError" class="profile-dropdown-error">{{ profileError }}</p>
+
+          <div v-if="!profileLoading" class="profile-dropdown-body">
+            <div class="profile-dropdown-header">
+              <div class="profile-dropdown-avatar">
+                <img
+                  v-if="profileData?.imageUrl"
+                  :src="profileData.imageUrl"
+                  :alt="profileData?.displayName || 'Usuario Spotify'"
+                />
+                <span v-else>{{ profileInitial }}</span>
+              </div>
+              <div class="profile-dropdown-info">
+                <p class="profile-dropdown-name">
+                  {{ profileData?.displayName || "Usuario Spotify" }}
+                </p>
+                <p class="profile-dropdown-email">
+                  {{ profileData?.email || "Email no disponible" }}
+                </p>
+              </div>
+            </div>
+
+            <div class="profile-dropdown-list">
+              <div class="profile-dropdown-row">
+                <span class="profile-dropdown-label">Pais</span>
+                <span class="profile-dropdown-value">
+                  {{ profileData?.country || "No disponible" }}
+                </span>
+              </div>
+              <div class="profile-dropdown-row">
+                <span class="profile-dropdown-label">Cuenta</span>
+                <span class="profile-dropdown-value">
+                  {{ profileData?.product || "No disponible" }}
+                </span>
+              </div>
+              <div class="profile-dropdown-row">
+                <span class="profile-dropdown-label">Seguidores</span>
+                <span class="profile-dropdown-value">
+                  {{ profileData?.followersTotal ?? "No disponible" }}
+                </span>
+              </div>
+            </div>
+
+            <a
+              v-if="profileData?.externalUrl"
+              :href="profileData.externalUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="profile-dropdown-link"
+            >
+              Abrir perfil en Spotify
+            </a>
+
+            <p v-if="profileData?.capabilitiesNote" class="profile-dropdown-note">
+              {{ profileData.capabilitiesNote }}
+            </p>
+          </div>
+        </div>
+      </div>
       <button class="logout-btn" @click="logout">Cerrar sesión</button>
     </div>
   </nav>
@@ -64,12 +145,21 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAuth } from "@/shared/composables/useAuth";
+import { useProfile } from "@/modules/profile/composables/useProfile";
 
 const { logout, authStore } = useAuth();
 const user = computed(() => authStore.user);
+const { profile, loading: profileLoading, error: profileError, loadProfile } = useProfile();
+const profileData = computed(() => profile.value || user.value);
+const profileInitial = computed(() => {
+  const name = profileData.value?.displayName || "U";
+  return name.trim().charAt(0).toUpperCase();
+});
 const route = useRoute();
 const menuOpen = ref(false);
 const menuRoot = ref(null);
+const profileOpen = ref(false);
+const profileRoot = ref(null);
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value;
@@ -79,25 +169,41 @@ function closeMenu() {
   menuOpen.value = false;
 }
 
+function openProfileMenu() {
+  profileOpen.value = true;
+}
+
+function closeProfileMenu() {
+  profileOpen.value = false;
+}
+
+function toggleProfileMenu() {
+  profileOpen.value = !profileOpen.value;
+}
+
 function handleDocumentClick(event) {
-  if (!menuOpen.value || !menuRoot.value) {
-    return;
+  const target = event.target;
+
+  if (menuOpen.value && menuRoot.value && !menuRoot.value.contains(target)) {
+    closeMenu();
   }
 
-  if (!menuRoot.value.contains(event.target)) {
-    closeMenu();
+  if (profileOpen.value && profileRoot.value && !profileRoot.value.contains(target)) {
+    closeProfileMenu();
   }
 }
 
 function handleEscape(event) {
   if (event.key === "Escape") {
     closeMenu();
+    closeProfileMenu();
   }
 }
 
 onMounted(() => {
   document.addEventListener("click", handleDocumentClick);
   document.addEventListener("keydown", handleEscape);
+  loadProfile();
 });
 
 onUnmounted(() => {
@@ -105,7 +211,10 @@ onUnmounted(() => {
   document.removeEventListener("keydown", handleEscape);
 });
 
-watch(() => route.fullPath, closeMenu);
+watch(() => route.fullPath, () => {
+  closeMenu();
+  closeProfileMenu();
+});
 </script>
 
 <style scoped>
@@ -206,7 +315,167 @@ watch(() => route.fullPath, closeMenu);
   gap: 1rem;
 }
 
-.user-name { color: var(--color-accent-soft); font-size: 0.9rem; opacity: 0.85; }
+.profile-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-avatar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(233, 220, 186, 0.35);
+  background: rgba(233, 220, 186, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent-soft);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.profile-avatar-btn:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-avatar-fallback {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-accent-soft);
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 280px;
+  max-width: calc(100vw - 1.5rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--app-shadow-card);
+  padding: 0.85rem;
+  z-index: 140;
+  color: var(--color-text);
+}
+
+.profile-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.profile-dropdown-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.profile-dropdown-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-dropdown-info {
+  min-width: 0;
+}
+
+.profile-dropdown-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dropdown-email {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dropdown-list {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+
+.profile-dropdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.profile-dropdown-label {
+  color: var(--color-muted);
+}
+
+.profile-dropdown-value {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.profile-dropdown-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.profile-dropdown-link:hover {
+  border-color: var(--color-accent);
+}
+
+.profile-dropdown-note {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.profile-dropdown-status {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.profile-dropdown-error {
+  font-size: 0.78rem;
+  color: var(--color-accent-wine);
+  margin-bottom: 0.4rem;
+}
 
 .logout-btn {
   background: var(--color-accent-wine);
@@ -228,16 +497,16 @@ watch(() => route.fullPath, closeMenu);
     gap: 0.75rem;
   }
 
-  .user-name {
-    display: none;
-  }
-
   .menu-label {
     display: none;
   }
 
   .menu-dropdown {
     min-width: 190px;
+  }
+
+  .profile-dropdown {
+    width: min(320px, calc(100vw - 2rem));
   }
 }
 </style>
