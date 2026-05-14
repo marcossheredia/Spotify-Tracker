@@ -321,7 +321,7 @@ watch(
 
 .player-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 210px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
   gap: 1rem;
   align-items: start;
 }
@@ -537,7 +537,7 @@ a.track-name:hover {
 
 .progress-line {
   position: relative;
-  width: 100%;
+  width: 92%;
   height: 6px;
   border-radius: 999px;
   background: rgba(233, 220, 186, 0.18);

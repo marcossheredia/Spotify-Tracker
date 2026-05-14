@@ -14,6 +14,29 @@
             {{ option.label }}
           </label>
         </div>
+
+        <section v-if="showSuggestedArtists" class="suggested-artists">
+          <div class="suggested-artists__header">
+            <h2>Artistas para descubrir</h2>
+            <p>Ideas rapidas para empezar a buscar.</p>
+          </div>
+
+          <div class="suggested-artists__grid">
+            <button
+              v-for="artist in suggestedArtists"
+              :key="artist.id"
+              type="button"
+              class="suggested-artist-card"
+              @click="searchSuggestedArtist(artist)"
+            >
+              <div class="suggested-artist-card__image">
+                <img v-if="artist.imageUrl" :src="artist.imageUrl" :alt="artist.name" />
+                <span v-else>★</span>
+              </div>
+              <span class="suggested-artist-card__name">{{ artist.name }}</span>
+            </button>
+          </div>
+        </section>
       </div>
     </header>
 
@@ -150,7 +173,9 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { SearchService } from "@/modules/search/application/SearchService";
+import { SpotifySearchApiClient } from "@/modules/search/infrastructure/SpotifySearchApiClient";
 import { useGlobalSearch } from "@/modules/search/composables/useGlobalSearch";
 
 const typeOptions = [
@@ -163,6 +188,30 @@ const typeOptions = [
 const query = ref("");
 const selectedTypes = ref(["track", "artist", "album", "playlist"]);
 const { results, loading, error, executeSearch } = useGlobalSearch();
+const suggestedArtists = ref([]);
+const suggestionsLoading = ref(false);
+const suggestionSearchService = new SearchService(new SpotifySearchApiClient());
+
+const artistSuggestionPool = [
+  "Pearl Jam",
+  "The Police",
+  "Led Zeppelin",
+  "Fleetwood Mac",
+  "The Verve",
+  "Nirvana",
+  "Queen",
+  "David Bowie",
+  "Radiohead",
+  "Arctic Monkeys",
+  "The Cure",
+  "Metallica",
+  "Oasis",
+  "The Rolling Stones",
+  "Pink Floyd",
+  "Red Hot Chili Peppers",
+  "The Smiths",
+  "Foo Fighters",
+];
 
 const showEmpty = computed(() => {
   if (loading.value || !query.value.trim()) {
@@ -177,6 +226,11 @@ const showEmpty = computed(() => {
   ].every((count) => count === 0);
 });
 
+const hasQuery = computed(() => query.value.trim().length > 0);
+const showSuggestedArtists = computed(
+  () => !hasQuery.value && !loading.value && suggestedArtists.value.length > 0
+);
+
 let debounceId = null;
 watch([query, selectedTypes], () => {
   if (debounceId) {
@@ -189,6 +243,48 @@ watch([query, selectedTypes], () => {
       : "track,artist,album,playlist";
     executeSearch(query.value, types, 10);
   }, 350);
+});
+
+function pickRandomArtistNames() {
+  const shuffled = [...artistSuggestionPool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 8);
+}
+
+async function loadSuggestedArtists() {
+  suggestionsLoading.value = true;
+
+  try {
+    const names = pickRandomArtistNames();
+    const foundArtists = [];
+
+    for (const name of names) {
+      const response = await suggestionSearchService.search(name, "artist", 1, 0);
+      const artist = response?.artists?.[0] || null;
+      if (artist) {
+        foundArtists.push(artist);
+      }
+    }
+
+    suggestedArtists.value = foundArtists;
+  } catch (requestError) {
+    suggestedArtists.value = [];
+  } finally {
+    suggestionsLoading.value = false;
+  }
+}
+
+function searchSuggestedArtist(artist) {
+  if (debounceId) {
+    window.clearTimeout(debounceId);
+  }
+
+  query.value = artist.name;
+  selectedTypes.value = ["artist"];
+  executeSearch(artist.name, "artist", 10);
+}
+
+onMounted(() => {
+  loadSuggestedArtists();
 });
 </script>
 
@@ -232,6 +328,94 @@ watch([query, selectedTypes], () => {
   flex-wrap: wrap;
   gap: 0.8rem;
   color: var(--color-muted);
+}
+
+.suggested-artists {
+  margin-top: 0.6rem;
+  padding: 0.85rem;
+  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.suggested-artists__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.suggested-artists__header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.suggested-artists__header p {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.suggested-artists__grid {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.7rem;
+}
+
+.suggested-artist-card {
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-soft);
+  border-radius: 12px;
+  padding: 0.7rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.suggested-artist-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.suggested-artist-card__image {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.suggested-artist-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.suggested-artist-card__image span {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.suggested-artist-card__name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .group {

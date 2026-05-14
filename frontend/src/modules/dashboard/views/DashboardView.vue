@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <TopStatsPeriodSelector v-model="selectedTopStatsPeriod" />
+    
 
     <div class="dashboard-now-playing">
       <NowPlayingDropdownCard
@@ -9,6 +9,8 @@
         :error="nowPlayingError"
       />
     </div>
+
+    <TopStatsPeriodSelector v-model="selectedTopStatsPeriod" />
 
     <div class="dashboard-body">
       <TopTracksCard
