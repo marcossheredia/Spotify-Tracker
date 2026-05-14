@@ -30,9 +30,9 @@
           <RouterLink to="/search" class="menu-item" @click="closeMenu">
             Busqueda
           </RouterLink>
-          <RouterLink to="/player" class="menu-item" @click="closeMenu">
+          <!-- <RouterLink to="/player" class="menu-item" @click="closeMenu">
             Player
-          </RouterLink>
+          </RouterLink> -->
           <RouterLink to="/automation" class="menu-item" @click="closeMenu">
             Automatizacion
           </RouterLink>
