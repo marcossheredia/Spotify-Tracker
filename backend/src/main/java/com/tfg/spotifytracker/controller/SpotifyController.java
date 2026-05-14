@@ -1,6 +1,7 @@
 package com.tfg.spotifytracker.controller;
 
 import com.tfg.spotifytracker.dto.playback.response.RecentPlaybackSyncResponseDTO;
+import com.tfg.spotifytracker.dto.playback.response.PlaytimeHistoryResponseDTO;
 import com.tfg.spotifytracker.dto.spotify.common.SpotifyArtistDTO;
 import com.tfg.spotifytracker.dto.spotify.player.response.SpotifyNowPlayingDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistDetailDTO;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.time.Instant;
 
 @Tag(name = "Spotify", description = "Consultas de datos del usuario en Spotify")
 @Validated
@@ -144,5 +146,20 @@ public class SpotifyController {
         }
 
         return ResponseEntity.ok(recentPlaybackSyncService.getPlaytimeStats(usuario));
+    }
+
+    @Operation(summary = "Obtener historico de playtime")
+    @GetMapping("/stats/playtime/history")
+    public ResponseEntity<PlaytimeHistoryResponseDTO> getPlaytimeHistory(
+        @AuthenticationPrincipal Usuario usuario,
+        @RequestParam(required = false) Instant from,
+        @RequestParam(required = false) Instant to,
+        @RequestParam(required = false) String granularity
+    ) {
+        if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {
+            throw new UnauthorizedException("Usuario no autenticado en Spotify");
+        }
+
+        return ResponseEntity.ok(recentPlaybackSyncService.getPlaytimeHistory(usuario, from, to, granularity));
     }
 }

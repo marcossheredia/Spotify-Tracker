@@ -1,5 +1,7 @@
 package com.tfg.spotifytracker.service;
 
+import com.tfg.spotifytracker.dto.playback.response.PlaytimeHistoryPointDTO;
+import com.tfg.spotifytracker.dto.playback.response.PlaytimeHistoryResponseDTO;
 import com.tfg.spotifytracker.dto.playback.response.RecentPlaybackSyncResponseDTO;
 import com.tfg.spotifytracker.entity.ReproduccionReciente;
 import com.tfg.spotifytracker.entity.Usuario;
@@ -14,11 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -29,6 +33,7 @@ public class RecentPlaybackSyncService {
     private static final int RECENT_PLAYED_LIMIT = 50;
     private static final int MAX_INCREMENTAL_PAGINATION_ROUNDS = 20;
     private static final int MAX_INITIAL_BACKFILL_PAGES = 5;
+    private static final Set<String> ALLOWED_GRANULARITIES = Set.of("hour", "day", "week", "month");
 
     private final UsuarioEstadisticasRepository usuarioEstadisticasRepository;
     private final ReproduccionRecienteRepository reproduccionRecienteRepository;
@@ -67,6 +72,74 @@ public class RecentPlaybackSyncService {
     public RecentPlaybackSyncResponseDTO getPlaytimeStats(Usuario usuario) {
         UsuarioEstadisticas estadisticas = getOrCreateEstadisticas(usuario.getId());
         return toResponse(estadisticas, 0L, 0L);
+    }
+
+    @Transactional(readOnly = true)
+    public PlaytimeHistoryResponseDTO getPlaytimeHistory(Usuario usuario, Instant from, Instant to, String granularity) {
+        UUID usuarioId = Objects.requireNonNull(usuario.getId(), "usuarioId no puede ser null");
+        Instant resolvedFrom = from;
+        Instant resolvedTo = to != null ? to : Instant.now();
+        String resolvedGranularity = StringUtils.hasText(granularity) ? granularity : "day";
+
+        if (!ALLOWED_GRANULARITIES.contains(resolvedGranularity)) {
+            throw new IllegalArgumentException("Granularidad invalida: " + granularity);
+        }
+
+        if (resolvedFrom == null) {
+            resolvedFrom = reproduccionRecienteRepository.findFirstPlayedAt(usuarioId);
+        }
+
+        if (resolvedFrom == null) {
+            return PlaytimeHistoryResponseDTO.builder()
+                .from(null)
+                .to(resolvedTo)
+                .granularity(resolvedGranularity)
+                .totalPlaytimeMs(0L)
+                .totalReproducciones(0L)
+                .points(List.of())
+                .build();
+        }
+
+        if (resolvedFrom.isAfter(resolvedTo)) {
+            Instant swap = resolvedFrom;
+            resolvedFrom = resolvedTo;
+            resolvedTo = swap;
+        }
+
+        List<Object[]> rows = reproduccionRecienteRepository.findPlaytimeHistory(
+            usuarioId,
+            resolvedFrom,
+            resolvedTo,
+            resolvedGranularity
+        );
+
+        List<PlaytimeHistoryPointDTO> points = new ArrayList<>();
+        long totalPlaytimeMs = 0L;
+        long totalReproducciones = 0L;
+
+        for (Object[] row : rows) {
+            Instant periodStart = toInstant(row[0]);
+            Long playtimeMs = asLong(row[1]);
+            Long reproducciones = asLong(row[2]);
+
+            totalPlaytimeMs += safeLong(playtimeMs);
+            totalReproducciones += safeLong(reproducciones);
+
+            points.add(PlaytimeHistoryPointDTO.builder()
+                .periodStart(periodStart)
+                .totalPlaytimeMs(safeLong(playtimeMs))
+                .totalReproducciones(safeLong(reproducciones))
+                .build());
+        }
+
+        return PlaytimeHistoryResponseDTO.builder()
+            .from(resolvedFrom)
+            .to(resolvedTo)
+            .granularity(resolvedGranularity)
+            .totalPlaytimeMs(totalPlaytimeMs)
+            .totalReproducciones(totalReproducciones)
+            .points(points)
+            .build();
     }
 
     private UsuarioEstadisticas getOrCreateEstadisticas(UUID usuarioId) {
@@ -347,7 +420,7 @@ public class RecentPlaybackSyncService {
             return number.longValue();
         }
 
-        if (value instanceof String text && text.matches("\\d+")) {
+        if (value instanceof String text && text.matches("-?\\d+")) {
             return Long.parseLong(text);
         }
 
@@ -356,6 +429,34 @@ public class RecentPlaybackSyncService {
 
     private long safeLong(Long value) {
         return value != null ? value : 0L;
+    }
+
+    private Instant toInstant(Object value) {
+        if (value instanceof Instant instant) {
+            return instant;
+        }
+
+        if (value instanceof java.sql.Timestamp timestamp) {
+            return timestamp.toInstant();
+        }
+
+        if (value instanceof java.util.Date date) {
+            return date.toInstant();
+        }
+
+        if (value instanceof ZonedDateTime zonedDateTime) {
+            return zonedDateTime.toInstant();
+        }
+
+        if (value instanceof String text && StringUtils.hasText(text)) {
+            try {
+                return Instant.parse(text);
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private Long maxNullable(Long base, Long candidate) {

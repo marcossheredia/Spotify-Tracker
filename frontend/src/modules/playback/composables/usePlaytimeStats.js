@@ -14,6 +14,17 @@ function emptyStats() {
   };
 }
 
+function emptyHistory() {
+  return {
+    from: null,
+    to: null,
+    granularity: "day",
+    totalPlaytimeMs: 0,
+    totalReproducciones: 0,
+    points: [],
+  };
+}
+
 function resolveErrorMessage(error) {
   return error?.response?.data?.message || "No se pudieron cargar las estadisticas de reproduccion.";
 }
@@ -23,6 +34,9 @@ export function usePlaytimeStats(playtimeService = defaultPlaytimeService) {
   const loading = ref(false);
   const error = ref("");
   const isSyncing = ref(false);
+  const history = ref(emptyHistory());
+  const historyLoading = ref(false);
+  const historyError = ref("");
 
   async function syncRecentPlaytime() {
     if (isSyncing.value) {
@@ -65,12 +79,30 @@ export function usePlaytimeStats(playtimeService = defaultPlaytimeService) {
     }
   }
 
+  async function loadPlaytimeHistory(filters = {}) {
+    historyLoading.value = true;
+    historyError.value = "";
+
+    try {
+      history.value = await playtimeService.getPlaytimeHistory(filters);
+    } catch (requestError) {
+      historyError.value = resolveErrorMessage(requestError);
+      history.value = emptyHistory();
+    } finally {
+      historyLoading.value = false;
+    }
+  }
+
   return {
     stats,
     loading,
     error,
     isSyncing,
+    history,
+    historyLoading,
+    historyError,
     syncRecentPlaytime,
     loadPlaytimeStats,
+    loadPlaytimeHistory,
   };
 }
