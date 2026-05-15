@@ -12,13 +12,4 @@ public class AssistantAiProperties {
     private String openaiApiKey;
     private String refinerModel = "gpt-4o-mini";
     private String characterModel = "gpt-4o-mini";
-    private Gemini gemini = new Gemini();
-
-    @Data
-    public static class Gemini {
-        private String apiKey;
-        private String model = "gemini-2.5-flash";
-        private String baseUrl = "https://generativelanguage.googleapis.com/v1beta";
-        private int timeoutSeconds = 20;
-    }
 }

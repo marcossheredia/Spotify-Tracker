@@ -25,7 +25,6 @@
         <label>
           Frecuencia
           <select v-model="granularity">
-            <option value="hour">Hora</option>
             <option value="day">Dia</option>
             <option value="week">Semana</option>
             <option value="month">Mes</option>
@@ -77,7 +76,7 @@ const granularity = ref("day");
 const historyFilters = computed(() => ({
   from: fromDate.value,
   to: toDate.value,
-  granularity: granularity.value,
+  frequency: granularity.value,
 }));
 
 onMounted(() => {
@@ -97,7 +96,7 @@ function applyPresetYesterday() {
 
   fromDate.value = formatDateInput(yesterday);
   toDate.value = formatDateInput(today);
-  granularity.value = "hour";
+  granularity.value = "day";
 }
 
 function applyPresetDays(days) {
@@ -119,28 +118,18 @@ function applyPresetAll() {
 
 function buildHistoryParams() {
   const params = {
-    granularity: granularity.value || "day",
+    frequency: granularity.value || "day",
   };
 
   if (fromDate.value) {
-    params.from = toIsoStart(fromDate.value);
+    params.from = fromDate.value;
   }
 
   if (toDate.value) {
-    params.to = toIsoEnd(toDate.value);
+    params.to = toDate.value;
   }
 
   return params;
-}
-
-function toIsoStart(dateString) {
-  const date = new Date(`${dateString}T00:00:00`);
-  return date.toISOString();
-}
-
-function toIsoEnd(dateString) {
-  const date = new Date(`${dateString}T23:59:59`);
-  return date.toISOString();
 }
 
 function formatDateInput(date) {

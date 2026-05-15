@@ -16,8 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,7 @@ public class RecentPlaybackSyncService {
     private static final int RECENT_PLAYED_LIMIT = 50;
     private static final int MAX_INCREMENTAL_PAGINATION_ROUNDS = 20;
     private static final int MAX_INITIAL_BACKFILL_PAGES = 5;
-    private static final Set<String> ALLOWED_GRANULARITIES = Set.of("hour", "day", "week", "month");
+    private static final Set<String> ALLOWED_GRANULARITIES = Set.of("day", "week", "month");
 
     private final UsuarioEstadisticasRepository usuarioEstadisticasRepository;
     private final ReproduccionRecienteRepository reproduccionRecienteRepository;
@@ -113,7 +117,7 @@ public class RecentPlaybackSyncService {
             resolvedGranularity
         );
 
-        List<PlaytimeHistoryPointDTO> points = new ArrayList<>();
+        Map<Instant, PlaytimeHistoryPointDTO> pointByPeriod = new LinkedHashMap<>();
         long totalPlaytimeMs = 0L;
         long totalReproducciones = 0L;
 
@@ -121,16 +125,21 @@ public class RecentPlaybackSyncService {
             Instant periodStart = toInstant(row[0]);
             Long playtimeMs = asLong(row[1]);
             Long reproducciones = asLong(row[2]);
+            if (periodStart == null) {
+                continue;
+            }
 
             totalPlaytimeMs += safeLong(playtimeMs);
             totalReproducciones += safeLong(reproducciones);
 
-            points.add(PlaytimeHistoryPointDTO.builder()
+            pointByPeriod.put(periodStart, PlaytimeHistoryPointDTO.builder()
                 .periodStart(periodStart)
                 .totalPlaytimeMs(safeLong(playtimeMs))
                 .totalReproducciones(safeLong(reproducciones))
                 .build());
         }
+
+        List<PlaytimeHistoryPointDTO> points = fillMissingPeriods(pointByPeriod, resolvedFrom, resolvedTo, resolvedGranularity);
 
         return PlaytimeHistoryResponseDTO.builder()
             .from(resolvedFrom)
@@ -140,6 +149,22 @@ public class RecentPlaybackSyncService {
             .totalReproducciones(totalReproducciones)
             .points(points)
             .build();
+    }
+
+    @Transactional(readOnly = true)
+    public PlaytimeHistoryResponseDTO getPlaytimeHistoryByDate(Usuario usuario, LocalDate from, LocalDate to, String frequency) {
+        String safeFrequency = normalizeFrequency(frequency);
+        LocalDate resolvedToDate = to != null ? to : LocalDate.now(ZoneOffset.UTC);
+        LocalDate resolvedFromDate = from;
+        if (resolvedFromDate == null) {
+            Instant firstPlayed = reproduccionRecienteRepository.findFirstPlayedAt(usuario.getId());
+            resolvedFromDate = firstPlayed != null
+                ? LocalDate.ofInstant(firstPlayed, ZoneOffset.UTC)
+                : resolvedToDate.minusDays(30);
+        }
+        Instant fromInstant = resolvedFromDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant toInstant = resolvedToDate.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+        return getPlaytimeHistory(usuario, fromInstant, toInstant, safeFrequency);
     }
 
     private UsuarioEstadisticas getOrCreateEstadisticas(UUID usuarioId) {
@@ -467,6 +492,58 @@ public class RecentPlaybackSyncService {
             return candidate;
         }
         return Math.max(base, candidate);
+    }
+
+    private List<PlaytimeHistoryPointDTO> fillMissingPeriods(Map<Instant, PlaytimeHistoryPointDTO> source,
+                                                             Instant from,
+                                                             Instant to,
+                                                             String granularity) {
+        List<PlaytimeHistoryPointDTO> points = new ArrayList<>();
+        Instant cursor = truncateInstant(from, granularity);
+        Instant end = truncateInstant(to, granularity);
+        while (cursor != null && !cursor.isAfter(end)) {
+            PlaytimeHistoryPointDTO existing = source.get(cursor);
+            if (existing != null) {
+                points.add(existing);
+            } else {
+                points.add(PlaytimeHistoryPointDTO.builder()
+                    .periodStart(cursor)
+                    .totalPlaytimeMs(0L)
+                    .totalReproducciones(0L)
+                    .build());
+            }
+            cursor = advance(cursor, granularity);
+        }
+        return points;
+    }
+
+    private Instant truncateInstant(Instant instant, String granularity) {
+        ZonedDateTime zdt = instant.atZone(ZoneOffset.UTC);
+        return switch (granularity) {
+            case "week" -> zdt.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
+                .toLocalDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+            case "month" -> zdt.withDayOfMonth(1).toLocalDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+            default -> zdt.toLocalDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+        };
+    }
+
+    private Instant advance(Instant instant, String granularity) {
+        return switch (granularity) {
+            case "week" -> instant.plusSeconds(7L * 24L * 3600L);
+            case "month" -> instant.atZone(ZoneOffset.UTC).plusMonths(1).toInstant();
+            default -> instant.plusSeconds(24L * 3600L);
+        };
+    }
+
+    private String normalizeFrequency(String frequency) {
+        if (!StringUtils.hasText(frequency)) {
+            return "day";
+        }
+        String value = frequency.trim().toLowerCase();
+        if ("day".equals(value) || "week".equals(value) || "month".equals(value)) {
+            return value;
+        }
+        return "day";
     }
 
     private static final class SyncAccumulator {

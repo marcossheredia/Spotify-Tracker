@@ -24,8 +24,11 @@
     <p v-else-if="!safePoints.length" class="history-status">
       No hay datos para este rango.
     </p>
+    <p v-else-if="allZeroPoints" class="history-status">
+      Aún no hay suficientes datos históricos. Se irán generando con cada sincronización.
+    </p>
 
-    <div v-else class="history-chart">
+    <div v-else-if="!allZeroPoints" class="history-chart">
       <div class="history-chart-bars">
         <div
           v-for="point in safePoints"
@@ -77,6 +80,7 @@ const maxPlaytime = computed(() => {
   }
   return Math.max(...safePoints.value.map((point) => Number(point.totalPlaytimeMs || 0)));
 });
+const allZeroPoints = computed(() => safePoints.value.every((point) => Number(point.totalPlaytimeMs || 0) <= 0));
 
 function barHeight(point) {
   const max = maxPlaytime.value || 1;
@@ -130,8 +134,11 @@ function formatPointLabel(value) {
     return "-";
   }
 
-  if (props.history?.granularity === "hour") {
-    return date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+  if (props.history?.granularity === "week") {
+    return `Sem ${date.toLocaleDateString("es-ES", { day: "2-digit", month: "short" })}`;
+  }
+  if (props.history?.granularity === "month") {
+    return date.toLocaleDateString("es-ES", { month: "short", year: "2-digit" });
   }
 
   return date.toLocaleDateString("es-ES", { day: "2-digit", month: "short" });

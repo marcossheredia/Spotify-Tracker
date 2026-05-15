@@ -41,7 +41,7 @@ export class PlaytimeStatsService {
     return normalizeStats(data);
   }
 
-  async getPlaytimeHistory({ from, to, granularity } = {}) {
+  async getPlaytimeHistory({ from, to, frequency } = {}) {
     const params = {};
     if (from) {
       params.from = from;
@@ -49,11 +49,11 @@ export class PlaytimeStatsService {
     if (to) {
       params.to = to;
     }
-    if (granularity) {
-      params.granularity = granularity;
+    if (frequency) {
+      params.frequency = frequency;
     }
 
-    const { data } = await api.get("/api/spotify/stats/playtime/history", { params });
+    const { data } = await api.get("/api/playtime/history", { params });
     return normalizeHistory(data);
   }
 }

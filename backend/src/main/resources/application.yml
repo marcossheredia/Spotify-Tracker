@@ -117,8 +117,3 @@ assistant:
     openai-api-key: ${OPENAI_API_KEY:}
     refiner-model: ${ASSISTANT_REFINER_MODEL:gpt-4o-mini}
     character-model: ${ASSISTANT_CHARACTER_MODEL:gpt-4o-mini}
-    gemini:
-      api-key: ${GEMINI_API_KEY:}
-      model: ${ASSISTANT_GEMINI_MODEL:gemini-2.5-flash}
-      base-url: ${ASSISTANT_GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
-      timeout-seconds: ${ASSISTANT_GEMINI_TIMEOUT_SECONDS:20}

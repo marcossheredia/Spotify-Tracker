@@ -30,20 +30,11 @@ public class AssistantStatusController {
         }
 
         String provider = assistantAiProperties.getProvider();
-        AssistantAiProperties.Gemini gemini = assistantAiProperties.getGemini();
-
-        boolean configured = "mock".equalsIgnoreCase(provider)
-            || ("gemini".equalsIgnoreCase(provider)
-            && gemini != null
-            && StringUtils.hasText(gemini.getApiKey()));
-
-        String model = "gemini".equalsIgnoreCase(provider) && gemini != null
-            ? gemini.getModel()
-            : null;
+        boolean configured = "mock".equalsIgnoreCase(provider);
 
         return ResponseEntity.ok(AssistantStatusDTO.builder()
             .provider(provider)
-            .model(model)
+            .model(null)
             .configured(configured)
             .fallbackAvailable(true)
             .build());
