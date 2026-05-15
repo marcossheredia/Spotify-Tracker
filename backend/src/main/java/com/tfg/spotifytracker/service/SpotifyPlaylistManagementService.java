@@ -5,11 +5,13 @@ import com.tfg.spotifytracker.dto.spotify.playlist.request.SpotifyPlaylistAutoma
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistAutomationResponseDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistDTO;
 import com.tfg.spotifytracker.exception.ResourceNotFoundException;
+import com.tfg.spotifytracker.exception.SpotifyApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -73,35 +75,48 @@ public class SpotifyPlaylistManagementService {
                 topTrackUris.add("spotify:track:" + track.getId());
             }
         });
+        List<String> uniqueTopTrackUris = new ArrayList<>(new LinkedHashSet<>(topTrackUris));
 
-        if (topTrackUris.isEmpty()) {
+        if (uniqueTopTrackUris.isEmpty()) {
             throw new ResourceNotFoundException("No hay suficientes datos de escucha para este periodo.");
         }
 
-        Map<String, Object> playlistResponse = spotifyApiClient.postMap(
-            accessToken,
-            "/me/playlists",
-            Map.of(
-                "name", playlistName,
-                "description", "Playlist generada automáticamente con tus canciones más escuchadas en Spotify Tracker.",
-                "public", Boolean.TRUE.equals(request.getPublicPlaylist())
-            )
-        );
+        Map<String, Object> playlistResponse;
+        try {
+            playlistResponse = spotifyApiClient.postMap(
+                accessToken,
+                "/me/playlists",
+                Map.of(
+                    "name", playlistName,
+                    "description", "Playlist generada automaticamente con tus canciones mas escuchadas en Spotify Tracker.",
+                    "public", Boolean.TRUE.equals(request.getPublicPlaylist())
+                )
+            );
+        } catch (SpotifyApiException ex) {
+            throw mapPlaylistCreationError(ex);
+        }
 
         String playlistId = mapper.asString(playlistResponse.get("id"));
-        if (playlistId != null && !playlistId.isBlank() && !topTrackUris.isEmpty()) {
-            spotifyApiClient.postNoContent(
-                accessToken,
-                "/playlists/" + playlistId + "/items",
-                Map.of("uris", topTrackUris)
-            );
+        if (playlistId != null && !playlistId.isBlank() && !uniqueTopTrackUris.isEmpty()) {
+            try {
+                for (int i = 0; i < uniqueTopTrackUris.size(); i += 100) {
+                    int end = Math.min(i + 100, uniqueTopTrackUris.size());
+                    spotifyApiClient.postNoContent(
+                        accessToken,
+                        "/playlists/" + playlistId + "/items",
+                        Map.of("uris", uniqueTopTrackUris.subList(i, end))
+                    );
+                }
+            } catch (SpotifyApiException ex) {
+                throw mapPlaylistAddTracksError(ex);
+            }
         }
 
         return SpotifyPlaylistAutomationResponseDTO.builder()
             .playlistId(playlistId)
             .playlistName(mapper.asString(playlistResponse.get("name")))
             .externalUrl(mapper.asString(mapper.asMap(playlistResponse.get("external_urls")).get("spotify")))
-            .tracksAdded(topTrackUris.size())
+            .tracksAdded(uniqueTopTrackUris.size())
             .timeRange(safeTimeRange)
             .build();
     }
@@ -134,5 +149,43 @@ public class SpotifyPlaylistManagementService {
             case "long_term" -> "Mis top canciones - Último año";
             default -> "Mis top canciones - Últimos 6 meses";
         };
+    }
+
+    private SpotifyApiException mapPlaylistCreationError(SpotifyApiException ex) {
+        Integer status = ex.getStatusCode();
+        if (status != null) {
+            if (status == 401) {
+                return new SpotifyApiException("Tu sesion con Spotify ha caducado. Vuelve a iniciar sesion.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 403) {
+                return new SpotifyApiException("Spotify no ha permitido crear la playlist. Revisa permisos.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 429) {
+                return new SpotifyApiException("Spotify ha limitado temporalmente las peticiones. Intentalo mas tarde.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+        }
+        return ex;
+    }
+
+    private SpotifyApiException mapPlaylistAddTracksError(SpotifyApiException ex) {
+        Integer status = ex.getStatusCode();
+        if (status != null) {
+            if (status == 401) {
+                return new SpotifyApiException("Tu sesion con Spotify ha caducado. Vuelve a iniciar sesion.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 403) {
+                return new SpotifyApiException("Spotify no ha permitido anadir canciones a la playlist. Revisa permisos.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 429) {
+                return new SpotifyApiException("Spotify ha limitado temporalmente las peticiones. Intentalo mas tarde.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+        }
+        return ex;
     }
 }

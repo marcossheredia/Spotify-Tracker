@@ -173,9 +173,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { SearchService } from "@/modules/search/application/SearchService";
-import { SpotifySearchApiClient } from "@/modules/search/infrastructure/SpotifySearchApiClient";
+import { computed, ref, watch } from "vue";
 import { useGlobalSearch } from "@/modules/search/composables/useGlobalSearch";
 
 const typeOptions = [
@@ -188,30 +186,16 @@ const typeOptions = [
 const query = ref("");
 const selectedTypes = ref(["track", "artist", "album", "playlist"]);
 const { results, loading, error, executeSearch } = useGlobalSearch();
-const suggestedArtists = ref([]);
-const suggestionsLoading = ref(false);
-const suggestionSearchService = new SearchService(new SpotifySearchApiClient());
-
-const artistSuggestionPool = [
-  "Pearl Jam",
-  "The Police",
-  "Led Zeppelin",
-  "Fleetwood Mac",
-  "The Verve",
-  "Nirvana",
-  "Queen",
-  "David Bowie",
-  "Radiohead",
-  "Arctic Monkeys",
-  "The Cure",
-  "Metallica",
-  "Oasis",
-  "The Rolling Stones",
-  "Pink Floyd",
-  "Red Hot Chili Peppers",
-  "The Smiths",
-  "Foo Fighters",
-];
+const suggestedArtists = ref([
+  { id: "sugg-rock-1", name: "Pearl Jam" },
+  { id: "sugg-rock-2", name: "Led Zeppelin" },
+  { id: "sugg-rock-3", name: "Fleetwood Mac" },
+  { id: "sugg-rock-4", name: "Nirvana" },
+  { id: "sugg-rock-5", name: "Queen" },
+  { id: "sugg-rock-6", name: "David Bowie" },
+  { id: "sugg-rock-7", name: "Radiohead" },
+  { id: "sugg-rock-8", name: "Pink Floyd" },
+]);
 
 const showEmpty = computed(() => {
   if (loading.value || !query.value.trim()) {
@@ -238,40 +222,13 @@ watch([query, selectedTypes], () => {
   }
 
   debounceId = window.setTimeout(() => {
-    const types = selectedTypes.value.length
-      ? selectedTypes.value.join(",")
-      : "track,artist,album,playlist";
-    executeSearch(query.value, types, 10);
-  }, 350);
-});
-
-function pickRandomArtistNames() {
-  const shuffled = [...artistSuggestionPool].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 8);
-}
-
-async function loadSuggestedArtists() {
-  suggestionsLoading.value = true;
-
-  try {
-    const names = pickRandomArtistNames();
-    const foundArtists = [];
-
-    for (const name of names) {
-      const response = await suggestionSearchService.search(name, "artist", 1, 0);
-      const artist = response?.artists?.[0] || null;
-      if (artist) {
-        foundArtists.push(artist);
-      }
+    if (!selectedTypes.value.length) {
+      return;
     }
-
-    suggestedArtists.value = foundArtists;
-  } catch (requestError) {
-    suggestedArtists.value = [];
-  } finally {
-    suggestionsLoading.value = false;
-  }
-}
+    const types = selectedTypes.value.join(",");
+    executeSearch(query.value, types, 10);
+  }, 800);
+});
 
 function searchSuggestedArtist(artist) {
   if (debounceId) {
@@ -282,10 +239,6 @@ function searchSuggestedArtist(artist) {
   selectedTypes.value = ["artist"];
   executeSearch(artist.name, "artist", 10);
 }
-
-onMounted(() => {
-  loadSuggestedArtists();
-});
 </script>
 
 <style scoped>

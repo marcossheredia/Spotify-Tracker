@@ -120,7 +120,6 @@ public class AssistantPlaylistPlannerService {
         if ("rock".equals(genre) && yearRange.is(1970, 1979)) {
             queries.add("classic rock 70s");
             queries.add("70s rock classics");
-            queries.add("hard rock 70s");
             queries.add("rock classics");
         }
 
@@ -128,7 +127,19 @@ public class AssistantPlaylistPlannerService {
             queries.add("disco 80s classics");
             queries.add("80s dance classics");
             queries.add("funk disco 80s");
-            queries.add("80s party classics");
+        }
+
+        if ("rock".equals(genre) && queries.isEmpty()) {
+            queries.add("rock hits");
+            queries.add("rock classics");
+            queries.add("classic rock");
+            queries.add("rock songs");
+        }
+
+        if ("pop".equals(genre) && queries.isEmpty()) {
+            queries.add("pop hits");
+            queries.add("pop songs");
+            queries.add("popular pop");
         }
 
         if (queries.isEmpty() && StringUtils.hasText(genre)) {

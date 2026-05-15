@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,13 +30,14 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AssistantPlaylistService {
 
-    private static final int SEARCH_LIMIT = 50;
-    private static final int SEARCH_PAGES = 4;
+    private static final int SEARCH_LIMIT = 25;
+    private static final int SEARCH_PAGES = 1;
     private static final int TRACKS_PER_ADD_REQUEST = 100;
 
     private final SpotifyTokenService spotifyTokenService;
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifySearchService spotifySearchService;
+    private final SpotifyService spotifyService;
     private final SpotifyDtoMapper spotifyDtoMapper;
     private final AssistantPlaylistPlannerService assistantPlaylistPlannerService;
 
@@ -107,7 +109,7 @@ public class AssistantPlaylistService {
         } catch (SpotifyApiException ex) {
             log.warn("Assistant playlist creation failed endpoint={} name='{}' status={}",
                 createPlaylistEndpoint, plan.getPlaylistName(), ex.getStatusCode());
-            throw ex;
+            throw mapPlaylistCreationError(ex);
         }
 
         String playlistId = spotifyDtoMapper.asString(playlistResponse.get("id"));
@@ -118,15 +120,19 @@ public class AssistantPlaylistService {
         List<String> uris = tracks.stream()
             .map(AssistantTrackDTO::getUri)
             .filter(StringUtils::hasText)
+            .map(String::trim)
+            .filter(StringUtils::hasText)
+            .distinct()
             .toList();
 
-        if (!uris.isEmpty()) {
-            try {
-                addTracks(accessToken, playlistId, uris);
-            } catch (SpotifyApiException ex) {
-                throw new SpotifyApiException("Se creo la playlist, pero fallo al agregar canciones: " + ex.getMessage(),
-                    ex.getStatusCode(), ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
-            }
+        if (uris.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron canciones para crear la playlist.");
+        }
+
+        try {
+            addTracks(accessToken, playlistId, uris);
+        } catch (SpotifyApiException ex) {
+            throw mapPlaylistAddTracksError(ex);
         }
 
         String playlistName = spotifyDtoMapper.asString(playlistResponse.get("name"));
@@ -151,20 +157,26 @@ public class AssistantPlaylistService {
         if (searchQueries.isEmpty()) {
             searchQueries.addAll(buildEmergencyQueries(plan));
         }
+        searchQueries = new ArrayList<>(new LinkedHashSet<>(searchQueries.stream().filter(StringUtils::hasText).map(String::trim).toList()));
+        if (searchQueries.size() > 3) {
+            searchQueries = new ArrayList<>(searchQueries.subList(0, 3));
+        }
 
-        int targetByCount = plan.getTrackLimit() == null ? 30 : plan.getTrackLimit();
+        int targetByCount = plan.getTrackLimit() == null ? 25 : plan.getTrackLimit();
         Integer targetDurationMinutes = plan.getTargetDurationMinutes();
+        int minTracksToCreate = 5;
+        int effectiveTarget = Math.max(minTracksToCreate, targetByCount);
 
         List<ScoredTrack> candidates = new ArrayList<>();
         List<SpotifyTrackDTO> fallbackPool = new ArrayList<>();
         Set<String> seen = new HashSet<>();
+        boolean rateLimited = false;
 
         for (String query : searchQueries) {
-            if (!StringUtils.hasText(query)) {
-                continue;
-            }
-            int addedForQuery = 0;
             for (int page = 0; page < SEARCH_PAGES; page++) {
+                if (fallbackPool.size() >= effectiveTarget) {
+                    break;
+                }
                 SpotifySearchResultDTO searchResult;
                 try {
                     searchResult = spotifySearchService.search(
@@ -175,7 +187,11 @@ public class AssistantPlaylistService {
                         page * SEARCH_LIMIT
                     );
                 } catch (SpotifyApiException ex) {
-                    if (ex.getStatusCode() != null && (ex.getStatusCode() == 400 || ex.getStatusCode() == 403 || ex.getStatusCode() == 429)) {
+                    if (ex.getStatusCode() != null && ex.getStatusCode() == 429) {
+                        rateLimited = true;
+                        break;
+                    }
+                    if (ex.getStatusCode() != null && (ex.getStatusCode() == 400 || ex.getStatusCode() == 403)) {
                         log.warn("Assistant search query skipped: query='{}' offset={} status={}", query, page * SEARCH_LIMIT, ex.getStatusCode());
                         break;
                     }
@@ -192,17 +208,18 @@ public class AssistantPlaylistService {
                     }
                     fallbackPool.add(track);
                     int score = scoreTrack(track, plan);
-                    if (score <= 0) {
-                        continue;
-                    }
                     candidates.add(new ScoredTrack(track, score));
-                    addedForQuery++;
+                }
+                if (resultTracks.isEmpty()) {
+                    break;
                 }
             }
-            log.info("Assistant query='{}' candidatesAdded={}", query, addedForQuery);
+            if (fallbackPool.size() >= effectiveTarget || rateLimited) {
+                break;
+            }
         }
 
-        if (candidates.isEmpty() && fallbackPool.isEmpty()) {
+        if (candidates.isEmpty() && fallbackPool.isEmpty() && !rateLimited) {
             log.warn("Assistant primary queries returned no tracks. Trying emergency queries.");
             for (String query : buildEmergencyQueries(plan)) {
                 if (!StringUtils.hasText(query)) {
@@ -218,9 +235,9 @@ public class AssistantPlaylistService {
                             continue;
                         }
                         fallbackPool.add(track);
-                        int score = scoreTrack(track, plan);
-                        if (score > 0) {
-                            candidates.add(new ScoredTrack(track, score));
+                        candidates.add(new ScoredTrack(track, scoreTrack(track, plan)));
+                        if (fallbackPool.size() >= effectiveTarget) {
+                            break;
                         }
                     }
                 } catch (SpotifyApiException ex) {
@@ -228,6 +245,9 @@ public class AssistantPlaylistService {
                         continue;
                     }
                     throw ex;
+                }
+                if (fallbackPool.size() >= effectiveTarget) {
+                    break;
                 }
             }
         }
@@ -257,8 +277,8 @@ public class AssistantPlaylistService {
             }
         }
 
-        if (selected.isEmpty() && !fallbackPool.isEmpty()) {
-            log.warn("Assistant scoring returned 0 tracks. Using fallback selection.");
+        if (selected.size() < minTracksToCreate && !fallbackPool.isEmpty()) {
+            log.warn("Assistant scoring returned few tracks. Using fallback selection.");
             for (SpotifyTrackDTO track : fallbackPool) {
                 if (track == null || !StringUtils.hasText(track.getId()) || !selectedIds.add(track.getId())) {
                     continue;
@@ -275,6 +295,49 @@ public class AssistantPlaylistService {
             }
         }
 
+        if (selected.isEmpty()) {
+            selected = fallbackFromTopTracks(accessToken, targetByCount);
+        }
+
+        return selected;
+    }
+
+    private List<AssistantTrackDTO> fallbackFromTopTracks(String accessToken, int targetByCount) {
+        int safeLimit = Math.max(5, Math.min(targetByCount, 25));
+        List<SpotifyTrackDTO> topTracks;
+        try {
+            topTracks = spotifyService.getTopTracks(accessToken, safeLimit, "medium_term");
+        } catch (SpotifyApiException ex) {
+            if (ex.getStatusCode() != null && ex.getStatusCode() == 429) {
+                topTracks = List.of();
+            } else {
+                try {
+                    topTracks = spotifyService.getTopTracks(accessToken, safeLimit, "long_term");
+                } catch (SpotifyApiException secondEx) {
+                    if (secondEx.getStatusCode() != null && secondEx.getStatusCode() == 403) {
+                        throw new SpotifyApiException("Spotify no permite crear playlists. Revisa permisos.",
+                            secondEx.getStatusCode(), secondEx.getRetryAfterSeconds(), secondEx.getSpotifyErrorCode(), secondEx.getSpotifyErrorCategory(), secondEx);
+                    }
+                    if (secondEx.getStatusCode() != null && secondEx.getStatusCode() == 429) {
+                        throw new SpotifyApiException("Spotify ha limitado temporalmente las peticiones. Espera unos segundos.",
+                            secondEx.getStatusCode(), secondEx.getRetryAfterSeconds(), secondEx.getSpotifyErrorCode(), secondEx.getSpotifyErrorCategory(), secondEx);
+                    }
+                    throw secondEx;
+                }
+            }
+        }
+
+        List<AssistantTrackDTO> selected = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (SpotifyTrackDTO track : topTracks == null ? List.<SpotifyTrackDTO>of() : topTracks) {
+            if (track == null || !StringUtils.hasText(track.getId()) || !seen.add(track.getId())) {
+                continue;
+            }
+            selected.add(toAssistantTrack(track));
+            if (selected.size() >= safeLimit) {
+                break;
+            }
+        }
         return selected;
     }
 
@@ -296,6 +359,7 @@ public class AssistantPlaylistService {
         if ("wedding".equalsIgnoreCase(context)) {
             queries.add("wedding love songs");
             queries.add("romantic wedding songs");
+            queries.add("classic love songs");
         }
         if ("rock".equalsIgnoreCase(genre) && is70s) {
             queries.add("classic rock 70s");
@@ -304,11 +368,15 @@ public class AssistantPlaylistService {
         }
         if ("disco".equalsIgnoreCase(genre) && is80s) {
             queries.add("disco 80s classics");
+            queries.add("80s dance classics");
+            queries.add("funk disco 80s");
         }
         queries.add("calm music");
+        queries.add("relaxing music");
+        queries.add("study music");
         queries.add("pop hits");
         queries.add("popular songs");
-        return queries;
+        return new ArrayList<>(new LinkedHashSet<>(queries));
     }
 
     private int scoreTrack(SpotifyTrackDTO track, AssistantPlaylistPlanDTO plan) {
@@ -321,11 +389,14 @@ public class AssistantPlaylistService {
         }
 
         List<String> negatives = plan.getNegativeConstraints() == null ? List.of() : plan.getNegativeConstraints();
-        if ((negatives.contains("no_remix") || negatives.contains("no_live") || negatives.contains("no_cover") || negatives.contains("no_karaoke"))
+        if ((negatives.contains("no_remix") || negatives.contains("remix")
+            || negatives.contains("no_live") || negatives.contains("live")
+            || negatives.contains("no_cover") || negatives.contains("cover")
+            || negatives.contains("no_karaoke") || negatives.contains("karaoke"))
             && (joined.contains("remix") || joined.contains("live") || joined.contains("cover") || joined.contains("karaoke") || joined.contains("tribute"))) {
             return -100;
         }
-        if (negatives.contains("no_hip_hop") && (joined.contains("hip hop") || joined.contains("rap"))) {
+        if ((negatives.contains("no_hip_hop") || negatives.contains("hip hop")) && (joined.contains("hip hop") || joined.contains("rap"))) {
             return -80;
         }
 
@@ -387,12 +458,23 @@ public class AssistantPlaylistService {
     }
 
     private void addTracks(String accessToken, String playlistId, List<String> uris) {
-        int total = uris.size();
+        List<String> safeUris = uris == null
+            ? List.of()
+            : uris.stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .distinct()
+                .toList();
+        int total = safeUris.size();
+        if (total == 0) {
+            throw new ResourceNotFoundException("No se encontraron canciones para crear la playlist.");
+        }
         int start = 0;
 
         while (start < total) {
             int end = Math.min(start + TRACKS_PER_ADD_REQUEST, total);
-            List<String> batch = uris.subList(start, end);
+            List<String> batch = safeUris.subList(start, end);
 
             spotifyApiClient.postNoContent(
                 accessToken,
@@ -402,6 +484,45 @@ public class AssistantPlaylistService {
 
             start = end;
         }
+    }
+
+    private SpotifyApiException mapPlaylistCreationError(SpotifyApiException ex) {
+        Integer status = ex.getStatusCode();
+        if (status != null) {
+            if (status == 401) {
+                return new SpotifyApiException("Tu sesion con Spotify ha caducado. Vuelve a iniciar sesion.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 403) {
+                return new SpotifyApiException("Spotify no ha permitido crear la playlist. Revisa permisos.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 429) {
+                return new SpotifyApiException("Spotify ha limitado temporalmente las peticiones. Intentalo mas tarde.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+        }
+        return ex;
+    }
+
+    private SpotifyApiException mapPlaylistAddTracksError(SpotifyApiException ex) {
+        Integer status = ex.getStatusCode();
+        if (status != null) {
+            if (status == 401) {
+                return new SpotifyApiException("Tu sesion con Spotify ha caducado. Vuelve a iniciar sesion.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 403) {
+                return new SpotifyApiException("Spotify no ha permitido anadir canciones a la playlist. Revisa permisos.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+            if (status == 429) {
+                return new SpotifyApiException("Spotify ha limitado temporalmente las peticiones. Intentalo mas tarde.",
+                    status, ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
+            }
+        }
+        return new SpotifyApiException("Se creo la playlist, pero fallo al agregar canciones: " + ex.getMessage(),
+            ex.getStatusCode(), ex.getRetryAfterSeconds(), ex.getSpotifyErrorCode(), ex.getSpotifyErrorCategory(), ex);
     }
 
     private String buildAssistantMessage(String playlistName, int tracksAdded, Integer targetDurationMinutes, List<AssistantTrackDTO> tracks) {
