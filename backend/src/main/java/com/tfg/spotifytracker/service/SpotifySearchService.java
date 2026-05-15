@@ -24,7 +24,7 @@ public class SpotifySearchService {
     private final SpotifyDtoMapper mapper;
 
     public SpotifySearchResultDTO search(String accessToken, String query, String types, int limit, int offset) {
-        int safeLimit = Math.max(1, Math.min(limit, 10));
+        int safeLimit = Math.max(1, Math.min(limit, 50));
         int safeOffset = Math.max(0, offset);
         String safeTypes = resolveTypes(types);
         String safeQuery = query == null ? "" : query.trim();
@@ -47,7 +47,7 @@ public class SpotifySearchService {
                 try {
                     response = spotifyApiClient.getMap(
                         accessToken,
-                        buildSearchUri(safeQuery, safeTypes, Math.min(safeLimit, 10), safeOffset, false, true)
+                        buildSearchUri(safeQuery, safeTypes, Math.min(safeLimit, 50), safeOffset, false, true)
                     );
                 } catch (SpotifyApiException retryEx) {
                     if (shouldRetryWithoutMarket(retryEx)) {

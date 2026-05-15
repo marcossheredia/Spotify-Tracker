@@ -29,7 +29,7 @@ import java.util.Set;
 public class GeminiAssistantAiService implements AssistantAiService {
 
     private static final int MIN_TRACK_LIMIT = 5;
-    private static final int MAX_TRACK_LIMIT = 50;
+    private static final int MAX_TRACK_LIMIT = 100;
     private static final int MIN_QUERY_COUNT = 3;
     private static final int MAX_QUERY_COUNT = 10;
 
@@ -100,7 +100,7 @@ public class GeminiAssistantAiService implements AssistantAiService {
             ),
             "generationConfig", Map.of(
                 "temperature", 0.2,
-                "maxOutputTokens", 512
+                "maxOutputTokens", 1024
             )
         );
     }
@@ -113,9 +113,10 @@ public class GeminiAssistantAiService implements AssistantAiService {
             "No llames a ninguna API ni generes resultados finales.",
             "Devuelve solo JSON valido, sin markdown, sin bloques de codigo y sin texto extra.",
             "Usa un JSON con estas claves:",
-            "originalMessage, playlistName, description, intent, language, contextTags, genres, searchQueries, trackLimit, publicPlaylist.",
+            "originalMessage, playlistName, description, intent, language, eventContext, targetAudience, preferredMarket, energyLevel, primaryGenre, secondaryGenres, moods, yearStart, yearEnd, targetDurationMinutes, avoidExplicit, negativeConstraints, contextTags, genres, searchQueries, trackLimit, publicPlaylist.",
             "searchQueries debe tener entre 3 y 10 elementos.",
-            "trackLimit debe estar entre 5 y 50.",
+            "trackLimit debe estar entre 5 y 100.",
+            "No uses literalmente el prompt del usuario como search query.",
             "Si el usuario es ambiguo, genera un plan razonable.",
             "Si el usuario pide algo no musical, usa intent='unknown' y genera queries genericas de musica.",
             "No respondas con comentarios ni explicaciones."
@@ -139,6 +140,17 @@ public class GeminiAssistantAiService implements AssistantAiService {
             .append("\"description\": \"...\",")
             .append("\"intent\": \"playlist\",")
             .append("\"language\": \"es\",")
+            .append("\"eventContext\": \"wedding\",")
+            .append("\"targetAudience\": \"general\",")
+            .append("\"energyLevel\": \"medium\",")
+            .append("\"primaryGenre\": \"disco\",")
+            .append("\"secondaryGenres\": [\"funk\"],")
+            .append("\"moods\": [\"romantic\"],")
+            .append("\"yearStart\": 1980,")
+            .append("\"yearEnd\": 1989,")
+            .append("\"targetDurationMinutes\": 240,")
+            .append("\"avoidExplicit\": false,")
+            .append("\"negativeConstraints\": [\"no_remix\"],")
             .append("\"contextTags\": [\"...\"],")
             .append("\"genres\": [\"...\"],")
             .append("\"searchQueries\": [\"...\"],")
@@ -187,13 +199,25 @@ public class GeminiAssistantAiService implements AssistantAiService {
             String intent = textValue(node, "intent");
             String language = textValue(node, "language", "lang");
             String message = textValue(node, "originalMessage");
+            String eventContext = textValue(node, "eventContext");
+            String targetAudience = textValue(node, "targetAudience");
+            String preferredMarket = textValue(node, "preferredMarket");
+            String energyLevel = textValue(node, "energyLevel");
+            String primaryGenre = textValue(node, "primaryGenre");
 
             List<String> contextTags = listValue(node, "contextTags", "contexts");
             List<String> genres = listValue(node, "genres");
+            List<String> moods = listValue(node, "moods");
+            List<String> secondaryGenres = listValue(node, "secondaryGenres");
+            List<String> negativeConstraints = listValue(node, "negativeConstraints");
             List<String> searchQueries = listValue(node, "searchQueries", "queries");
 
             Integer trackLimit = intValue(node, "trackLimit", "targetTrackCount");
+            Integer yearStart = intValue(node, "yearStart");
+            Integer yearEnd = intValue(node, "yearEnd");
+            Integer targetDurationMinutes = intValue(node, "targetDurationMinutes", "durationMinutes");
             Boolean publicPlaylist = booleanValue(node, "publicPlaylist");
+            Boolean avoidExplicit = booleanValue(node, "avoidExplicit");
 
             if (!StringUtils.hasText(message)) {
                 message = originalMessage;
@@ -212,8 +236,20 @@ public class GeminiAssistantAiService implements AssistantAiService {
                 .description(description)
                 .intent(intent)
                 .language(language)
+                .eventContext(eventContext)
+                .targetAudience(targetAudience)
+                .preferredMarket(preferredMarket)
+                .energyLevel(energyLevel)
+                .primaryGenre(primaryGenre)
+                .yearStart(yearStart)
+                .yearEnd(yearEnd)
+                .targetDurationMinutes(targetDurationMinutes)
+                .avoidExplicit(avoidExplicit)
                 .contextTags(contextTags)
+                .moods(moods)
                 .genres(genres)
+                .secondaryGenres(secondaryGenres)
+                .negativeConstraints(negativeConstraints)
                 .searchQueries(searchQueries)
                 .trackLimit(trackLimit)
                 .publicPlaylist(publicPlaylist)

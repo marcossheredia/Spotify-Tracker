@@ -19,6 +19,7 @@ public class SpotifyDtoMapper {
     public SpotifyTrackDTO toTrack(Map<String, Object> track) {
         Map<String, Object> album = asMap(track.get("album"));
         Map<String, Object> externalUrls = asMap(track.get("external_urls"));
+        String releaseDate = asString(album.get("release_date"));
 
         return SpotifyTrackDTO.builder()
             .id(asString(track.get("id")))
@@ -26,6 +27,10 @@ public class SpotifyDtoMapper {
             .imageUrl(extractImageUrl(album))
             .artists(extractNamedValues(track.get("artists"), "name"))
             .albumName(asString(album.get("name")))
+            .releaseDate(releaseDate)
+            .releaseYear(extractYear(releaseDate))
+            .durationMs(asNullableInteger(track.get("duration_ms")))
+            .explicit(asBoolean(track.get("explicit")))
             .externalUrl(asString(externalUrls.get("spotify")))
             .popularity(asNullableInteger(track.get("popularity")))
             .build();
@@ -226,5 +231,17 @@ public class SpotifyDtoMapper {
         }
 
         return null;
+    }
+
+    private Integer extractYear(String releaseDate) {
+        if (!StringUtils.hasText(releaseDate)) {
+            return null;
+        }
+        String trimmed = releaseDate.trim();
+        if (trimmed.length() < 4) {
+            return null;
+        }
+        String year = trimmed.substring(0, 4);
+        return year.matches("\\d{4}") ? Integer.parseInt(year) : null;
     }
 }

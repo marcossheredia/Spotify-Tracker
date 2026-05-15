@@ -4,8 +4,10 @@ import com.tfg.spotifytracker.dto.spotify.response.SpotifyPagedResponseDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.request.SpotifyPlaylistAutomationRequestDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistAutomationResponseDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistDTO;
+import com.tfg.spotifytracker.exception.SpotifyApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,9 +70,14 @@ public class SpotifyPlaylistManagementService {
             }
         });
 
+        String userId = mapper.asString(spotifyApiClient.getMap(accessToken, "/me").get("id"));
+        if (!StringUtils.hasText(userId)) {
+            throw new SpotifyApiException("No se pudo identificar el usuario de Spotify");
+        }
+
         Map<String, Object> playlistResponse = spotifyApiClient.postMap(
             accessToken,
-            "/me/playlists",
+            "/users/" + userId + "/playlists",
             Map.of(
                 "name", request.getName() == null || request.getName().isBlank()
                     ? "Top del mes - Spotify Tracker"
@@ -99,4 +106,3 @@ public class SpotifyPlaylistManagementService {
             .build();
     }
 }
-

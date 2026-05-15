@@ -13,6 +13,10 @@ public class SpotifyTrackDTO {
     private String imageUrl;
     private List<String> artists;
     private String albumName;
+    private String releaseDate;
+    private Integer releaseYear;
+    private Integer durationMs;
+    private Boolean explicit;
     private String externalUrl;
     private Integer popularity;
 }
