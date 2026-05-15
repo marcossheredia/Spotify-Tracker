@@ -10,7 +10,6 @@
       <article v-for="artist in artistsPage.items" :key="artist.id" class="artist-card">
         <img v-if="artist.imageUrl" :src="artist.imageUrl" :alt="artist.name" class="cover" />
         <h3>{{ artist.name }}</h3>
-        <p>{{ artist.followersTotal ?? "?" }} seguidores</p>
         <button :disabled="mutating" @click="unfollow(artist.id)">Dejar de seguir</button>
       </article>
     </div>

@@ -4,7 +4,7 @@ import com.tfg.spotifytracker.dto.spotify.response.SpotifyPagedResponseDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.request.SpotifyPlaylistAutomationRequestDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistAutomationResponseDTO;
 import com.tfg.spotifytracker.dto.spotify.playlist.response.SpotifyPlaylistDTO;
-import com.tfg.spotifytracker.exception.SpotifyApiException;
+import com.tfg.spotifytracker.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -60,8 +60,12 @@ public class SpotifyPlaylistManagementService {
 
     public SpotifyPlaylistAutomationResponseDTO createTopTracksPlaylist(String accessToken,
                                                                         SpotifyPlaylistAutomationRequestDTO request) {
-        int safeLimit = Math.max(1, Math.min(request.getLimit() == null ? 20 : request.getLimit(), 50));
-        String safeTimeRange = SpotifyTimeRange.fromQuery(request.getTimeRange()).getApiValue();
+        if (request == null) {
+            request = new SpotifyPlaylistAutomationRequestDTO();
+        }
+        int safeLimit = normalizeLimit(request.getLimit());
+        String safeTimeRange = normalizeTimeRange(request.getTimeRange());
+        String playlistName = resolvePlaylistName(request.getName(), safeTimeRange);
 
         List<String> topTrackUris = new ArrayList<>();
         spotifyService.getTopTracks(accessToken, safeLimit, safeTimeRange).forEach(track -> {
@@ -70,21 +74,16 @@ public class SpotifyPlaylistManagementService {
             }
         });
 
-        String userId = mapper.asString(spotifyApiClient.getMap(accessToken, "/me").get("id"));
-        if (!StringUtils.hasText(userId)) {
-            throw new SpotifyApiException("No se pudo identificar el usuario de Spotify");
+        if (topTrackUris.isEmpty()) {
+            throw new ResourceNotFoundException("No hay suficientes datos de escucha para este periodo.");
         }
 
         Map<String, Object> playlistResponse = spotifyApiClient.postMap(
             accessToken,
-            "/users/" + userId + "/playlists",
+            "/me/playlists",
             Map.of(
-                "name", request.getName() == null || request.getName().isBlank()
-                    ? "Top del mes - Spotify Tracker"
-                    : request.getName(),
-                "description", request.getDescription() == null || request.getDescription().isBlank()
-                    ? "Playlist autogenerada por Spotify Tracker"
-                    : request.getDescription(),
+                "name", playlistName,
+                "description", "Playlist generada automáticamente con tus canciones más escuchadas en Spotify Tracker.",
                 "public", Boolean.TRUE.equals(request.getPublicPlaylist())
             )
         );
@@ -103,6 +102,37 @@ public class SpotifyPlaylistManagementService {
             .playlistName(mapper.asString(playlistResponse.get("name")))
             .externalUrl(mapper.asString(mapper.asMap(playlistResponse.get("external_urls")).get("spotify")))
             .tracksAdded(topTrackUris.size())
+            .timeRange(safeTimeRange)
             .build();
+    }
+
+    private int normalizeLimit(Integer limit) {
+        if (limit == null) {
+            return 25;
+        }
+        int value = limit;
+        if (value == 10 || value == 25 || value == 50) {
+            return value;
+        }
+        return 25;
+    }
+
+    private String normalizeTimeRange(String raw) {
+        String value = SpotifyTimeRange.fromQuery(raw).getApiValue();
+        if ("short_term".equals(value) || "medium_term".equals(value) || "long_term".equals(value)) {
+            return value;
+        }
+        return "medium_term";
+    }
+
+    private String resolvePlaylistName(String rawName, String timeRange) {
+        if (StringUtils.hasText(rawName)) {
+            return rawName.trim();
+        }
+        return switch (timeRange) {
+            case "short_term" -> "Mis top canciones - Últimas 4 semanas";
+            case "long_term" -> "Mis top canciones - Último año";
+            default -> "Mis top canciones - Últimos 6 meses";
+        };
     }
 }

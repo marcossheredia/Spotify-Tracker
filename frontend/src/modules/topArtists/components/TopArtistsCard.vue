@@ -1,6 +1,6 @@
 <template>
   <div class="top-artists-card">
-    <h3>🎤 Top artistas</h3>
+    <h3>Top artistas</h3>
     <p class="period-hint">Periodo: {{ periodLabel }}</p>
 
     <p v-if="loading" class="section-message">Cargando top artistas...</p>

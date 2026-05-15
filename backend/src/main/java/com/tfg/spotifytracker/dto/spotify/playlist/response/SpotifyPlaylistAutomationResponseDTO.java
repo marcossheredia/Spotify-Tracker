@@ -10,5 +10,5 @@ public class SpotifyPlaylistAutomationResponseDTO {
     private String playlistName;
     private String externalUrl;
     private Integer tracksAdded;
+    private String timeRange;
 }
-

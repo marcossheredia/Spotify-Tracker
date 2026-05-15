@@ -46,7 +46,7 @@
             :class="{ active: activeTab === 'automation' }"
             @click="activeTab = 'automation'"
           >
-            Playlist viva
+            Playlist automatica
           </button>
         </div>
 
