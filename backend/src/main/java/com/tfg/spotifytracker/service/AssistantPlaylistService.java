@@ -37,7 +37,6 @@ public class AssistantPlaylistService {
     private final SpotifyTokenService spotifyTokenService;
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifySearchService spotifySearchService;
-    private final SpotifyService spotifyService;
     private final SpotifyDtoMapper spotifyDtoMapper;
     private final AssistantPlaylistPlannerService assistantPlaylistPlannerService;
 
@@ -295,49 +294,10 @@ public class AssistantPlaylistService {
             }
         }
 
-        if (selected.isEmpty()) {
-            selected = fallbackFromTopTracks(accessToken, targetByCount);
+        if (selected.isEmpty() && rateLimited) {
+            throw new SpotifyApiException("Spotify ha aplicado rate limit. Espera unos segundos y vuelve a intentarlo.", 429);
         }
 
-        return selected;
-    }
-
-    private List<AssistantTrackDTO> fallbackFromTopTracks(String accessToken, int targetByCount) {
-        int safeLimit = Math.max(5, Math.min(targetByCount, 25));
-        List<SpotifyTrackDTO> topTracks;
-        try {
-            topTracks = spotifyService.getTopTracks(accessToken, safeLimit, "medium_term");
-        } catch (SpotifyApiException ex) {
-            if (ex.getStatusCode() != null && ex.getStatusCode() == 429) {
-                topTracks = List.of();
-            } else {
-                try {
-                    topTracks = spotifyService.getTopTracks(accessToken, safeLimit, "long_term");
-                } catch (SpotifyApiException secondEx) {
-                    if (secondEx.getStatusCode() != null && secondEx.getStatusCode() == 403) {
-                        throw new SpotifyApiException("Spotify no permite crear playlists. Revisa permisos.",
-                            secondEx.getStatusCode(), secondEx.getRetryAfterSeconds(), secondEx.getSpotifyErrorCode(), secondEx.getSpotifyErrorCategory(), secondEx);
-                    }
-                    if (secondEx.getStatusCode() != null && secondEx.getStatusCode() == 429) {
-                        throw new SpotifyApiException("Spotify ha limitado temporalmente las peticiones. Espera unos segundos.",
-                            secondEx.getStatusCode(), secondEx.getRetryAfterSeconds(), secondEx.getSpotifyErrorCode(), secondEx.getSpotifyErrorCategory(), secondEx);
-                    }
-                    throw secondEx;
-                }
-            }
-        }
-
-        List<AssistantTrackDTO> selected = new ArrayList<>();
-        Set<String> seen = new HashSet<>();
-        for (SpotifyTrackDTO track : topTracks == null ? List.<SpotifyTrackDTO>of() : topTracks) {
-            if (track == null || !StringUtils.hasText(track.getId()) || !seen.add(track.getId())) {
-                continue;
-            }
-            selected.add(toAssistantTrack(track));
-            if (selected.size() >= safeLimit) {
-                break;
-            }
-        }
         return selected;
     }
 

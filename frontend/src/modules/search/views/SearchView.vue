@@ -2,12 +2,13 @@
   <section class="search-view">
     <header>
       <h1>Busqueda Global</h1>
-      <div class="search-controls">
+      <form class="search-controls" @submit.prevent="handleSearch">
         <input
           v-model="query"
           type="search"
           placeholder="Busca tracks, artistas, albumes o playlists"
         />
+        <button type="submit" class="search-button" :disabled="loading">Buscar</button>
         <div class="types">
           <label v-for="option in typeOptions" :key="option.value">
             <input v-model="selectedTypes" type="checkbox" :value="option.value" />
@@ -37,7 +38,7 @@
             </button>
           </div>
         </section>
-      </div>
+      </form>
     </header>
 
     <p v-if="loading" class="loading">Buscando...</p>
@@ -173,7 +174,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { useGlobalSearch } from "@/modules/search/composables/useGlobalSearch";
 
 const typeOptions = [
@@ -215,26 +216,15 @@ const showSuggestedArtists = computed(
   () => !hasQuery.value && !loading.value && suggestedArtists.value.length > 0
 );
 
-let debounceId = null;
-watch([query, selectedTypes], () => {
-  if (debounceId) {
-    window.clearTimeout(debounceId);
+function handleSearch() {
+  if (!selectedTypes.value.length) {
+    return;
   }
-
-  debounceId = window.setTimeout(() => {
-    if (!selectedTypes.value.length) {
-      return;
-    }
-    const types = selectedTypes.value.join(",");
-    executeSearch(query.value, types, 10);
-  }, 800);
-});
+  const types = selectedTypes.value.join(",");
+  executeSearch(query.value, types, 10);
+}
 
 function searchSuggestedArtist(artist) {
-  if (debounceId) {
-    window.clearTimeout(debounceId);
-  }
-
   query.value = artist.name;
   selectedTypes.value = ["artist"];
   executeSearch(artist.name, "artist", 10);

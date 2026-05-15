@@ -29,7 +29,7 @@ public class SpotifySearchService {
         String safeTypes = resolveTypes(types);
         String safeQuery = query == null ? "" : query.trim();
 
-        if (!StringUtils.hasText(safeQuery)) {
+        if (!StringUtils.hasText(safeQuery) || safeQuery.length() < 3) {
             return SpotifySearchResultDTO.builder()
                 .query(query)
                 .tracks(List.of())
@@ -39,30 +39,10 @@ public class SpotifySearchService {
                 .build();
         }
 
-        Map<String, Object> response;
-        try {
-            response = spotifyApiClient.getMap(accessToken, buildSearchUri(safeQuery, safeTypes, safeLimit, safeOffset, true, true));
-        } catch (SpotifyApiException ex) {
-            if (shouldRetryWithoutMarket(ex)) {
-                try {
-                    response = spotifyApiClient.getMap(
-                        accessToken,
-                        buildSearchUri(safeQuery, safeTypes, Math.min(safeLimit, 50), safeOffset, false, true)
-                    );
-                } catch (SpotifyApiException retryEx) {
-                    if (shouldRetryWithoutMarket(retryEx)) {
-                        response = spotifyApiClient.getMap(
-                            accessToken,
-                            buildSearchUri(safeQuery, safeTypes, null, safeOffset, false, false)
-                        );
-                    } else {
-                        throw retryEx;
-                    }
-                }
-            } else {
-                throw ex;
-            }
-        }
+        Map<String, Object> response = spotifyApiClient.getMap(
+            accessToken,
+            buildSearchUri(safeQuery, safeTypes, safeLimit, safeOffset, true, true)
+        );
 
         return SpotifySearchResultDTO.builder()
             .query(query)
@@ -100,15 +80,6 @@ public class SpotifySearchService {
         }
 
         return builder.build().encode().toUriString();
-    }
-
-    private boolean shouldRetryWithoutMarket(SpotifyApiException ex) {
-        if (ex == null || ex.getStatusCode() == null || ex.getStatusCode() != 400) {
-            return false;
-        }
-
-        String message = ex.getMessage();
-        return message != null && message.toLowerCase().contains("invalid limit");
     }
 
     private List<SpotifyTrackDTO> extractTracks(Map<String, Object> response) {

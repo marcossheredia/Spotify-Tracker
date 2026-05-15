@@ -17,6 +17,7 @@ export function useGlobalSearch(searchService = defaultService) {
   const error = ref("");
   const lastSearchKey = ref("");
   const cooldownUntilMs = ref(0);
+  const activeRequestId = ref(0);
 
   async function executeSearch(query, types = "track,artist,album,playlist", limit = 10) {
     const safeQuery = String(query || "").trim();
@@ -47,11 +48,20 @@ export function useGlobalSearch(searchService = defaultService) {
 
     loading.value = true;
     error.value = "";
+    const requestId = activeRequestId.value + 1;
+    activeRequestId.value = requestId;
 
     try {
-      results.value = await searchService.search(safeQuery, safeTypes, limit, 0);
+      const response = await searchService.search(safeQuery, safeTypes, limit, 0);
+      if (requestId !== activeRequestId.value) {
+        return;
+      }
+      results.value = response;
       lastSearchKey.value = searchKey;
     } catch (requestError) {
+      if (requestId !== activeRequestId.value) {
+        return;
+      }
       results.value = {
         query: safeQuery,
         tracks: [],
@@ -65,7 +75,9 @@ export function useGlobalSearch(searchService = defaultService) {
       }
       error.value = resolveSpotifyErrorMessage(requestError, "No se pudo completar la busqueda global.");
     } finally {
-      loading.value = false;
+      if (requestId === activeRequestId.value) {
+        loading.value = false;
+      }
     }
   }
 
