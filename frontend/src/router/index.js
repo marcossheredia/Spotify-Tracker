@@ -12,7 +12,7 @@ const routes = [
   { path: "/followed-artists", name: "FollowedArtists", component: () => import("@/modules/followedArtists/views/FollowedArtistsView.vue"), meta: { requiresAuth: true } },
   { path: "/search", name: "Search", component: () => import("@/modules/search/views/SearchView.vue"), meta: { requiresAuth: true } },
   //{ path: "/player", name: "Player", component: () => import("@/modules/player/views/PlayerView.vue"), meta: { requiresAuth: true } },
-  { path: "/automation", name: "Automation", component: () => import("@/modules/automation/views/AutomationView.vue"), meta: { requiresAuth: true } },
+  { path: "/automation", redirect: "/assistant" },
   { path: "/appearance", name: "Appearance", component: () => import("@/modules/appearance/views/AppearanceView.vue"), meta: { requiresAuth: true } },
   { path: "/assistant", name: "Assistant", component: () => import("@/modules/assistant/views/AssistantView.vue"), meta: { requiresAuth: true } },
   { path: "/:pathMatch(.*)*", redirect: "/" },

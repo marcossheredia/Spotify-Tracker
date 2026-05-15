@@ -30,9 +30,6 @@
           <!-- <RouterLink to="/player" class="menu-item" @click="closeMenu">
             Player
           </RouterLink> -->
-          <RouterLink to="/automation" class="menu-item" @click="closeMenu">
-            Automatizacion
-          </RouterLink>
           <RouterLink to="/assistant" class="menu-item" @click="closeMenu">
             Asistente IA
           </RouterLink>

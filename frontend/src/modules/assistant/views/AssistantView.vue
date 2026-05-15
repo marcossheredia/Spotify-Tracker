@@ -31,7 +31,26 @@
       </div>
 
       <div class="assistant-main">
-        <div class="chat-panel">
+        <div class="assistant-tabs" role="tablist" aria-label="Asistente IA">
+          <button
+            type="button"
+            class="assistant-tab"
+            :class="{ active: activeTab === 'chat' }"
+            @click="activeTab = 'chat'"
+          >
+            Crear con IA
+          </button>
+          <button
+            type="button"
+            class="assistant-tab"
+            :class="{ active: activeTab === 'automation' }"
+            @click="activeTab = 'automation'"
+          >
+            Playlist viva
+          </button>
+        </div>
+
+        <div v-if="activeTab === 'chat'" class="chat-panel">
           <div class="chat-history">
             <div
               v-for="message in chatMessages"
@@ -101,6 +120,8 @@
             </div>
           </form>
         </div>
+
+        <AssistantAutomationPanel v-else />
       </div>
     </section>
   </div>
@@ -109,6 +130,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import AssistantAvatar from "@/modules/assistant/components/AssistantAvatar.vue";
+import AssistantAutomationPanel from "@/modules/assistant/components/AssistantAutomationPanel.vue";
 import { useAssistant } from "@/modules/assistant/composables/useAssistant";
 
 const messageInput = ref("");
@@ -124,6 +146,7 @@ const chatMessages = ref([
 
 const ttsEnabled = ref(false);
 const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
+const activeTab = ref("chat");
 
 const { phase, isLoading, error, createPlaylist } = useAssistant();
 
@@ -270,6 +293,34 @@ function buildId() {
 
 .assistant-main {
   min-width: 0;
+}
+
+.assistant-tabs {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
+}
+
+.assistant-tab {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-muted);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.assistant-tab.active {
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-color: var(--color-border);
 }
 
 .status-badge {

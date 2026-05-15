@@ -1,95 +1,72 @@
 <template>
   <section class="automation-panel">
-    <div class="automation-hero">
-      <div>
-        <h2>Playlist viva</h2>
-        <p>Guarda reglas reutilizables para crear playlists automaticas con tus top canciones.</p>
-      </div>
-    </div>
+    <header class="automation-hero">
+      <h2>Playlist viva</h2>
+      <p>Guarda reglas reutilizables para crear playlists automáticas con tus top canciones.</p>
+    </header>
 
     <div class="automation-grid">
-      <form class="automation-form" @submit.prevent="handleExecute">
-        <label class="automation-field">
-          Nombre de la regla
-          <input v-model.trim="form.ruleName" type="text" placeholder="Top semanal" />
-        </label>
+      <form class="automation-form" @submit.prevent>
+        <div class="automation-field">
+          <label for="ruleName">Nombre de la regla</label>
+          <input id="ruleName" v-model.trim="form.ruleName" type="text" />
+        </div>
 
-        <label class="automation-field">
-          Nombre de la playlist
-          <input v-model.trim="form.playlistName" type="text" placeholder="Top del mes" />
-        </label>
+        <div class="automation-field">
+          <label for="playlistName">Nombre de la playlist</label>
+          <input id="playlistName" v-model.trim="form.playlistName" type="text" />
+        </div>
 
-        <label class="automation-field">
-          Descripcion
-          <input v-model.trim="form.description" type="text" placeholder="Generada automaticamente" />
-        </label>
+        <div class="automation-field">
+          <label for="description">Descripción</label>
+          <textarea id="description" v-model.trim="form.description" rows="3" />
+        </div>
 
-        <label class="automation-field">
-          Periodo
-          <select v-model="form.timeRange">
-            <option value="short_term">Ultimo mes</option>
-            <option value="medium_term">Ultimos 6 meses</option>
-            <option value="long_term">Historico</option>
+        <div class="automation-field">
+          <label for="timeRange">Periodo</label>
+          <select id="timeRange" v-model="form.timeRange">
+            <option value="short_term">Último mes</option>
+            <option value="medium_term">Últimos 6 meses</option>
+            <option value="long_term">Histórico</option>
           </select>
-        </label>
+        </div>
 
-        <label class="automation-field">
-          Numero de canciones
-          <input v-model.number="form.limit" type="number" min="5" max="50" />
-        </label>
+        <div class="automation-field">
+          <label for="limit">Número de canciones</label>
+          <input id="limit" v-model.number="form.limit" type="number" min="5" max="50" step="1" />
+        </div>
 
         <label class="automation-checkbox">
           <input v-model="form.publicPlaylist" type="checkbox" />
-          Playlist publica
+          <span>Playlist pública</span>
         </label>
 
         <div class="automation-actions">
-          <button
-            type="button"
-            class="automation-button secondary"
-            :disabled="!canSaveRule"
-            @click="saveRule"
-          >
-            Guardar regla
-          </button>
-          <button
-            type="submit"
-            class="automation-button"
-            :disabled="loading || !canExecute"
-          >
-            Ejecutar ahora
+          <button type="button" class="automation-button secondary" @click="saveRule">Guardar regla</button>
+          <button type="button" class="automation-button" :disabled="loading" @click="executeFromForm">
+            {{ loading ? "Ejecutando..." : "Ejecutar ahora" }}
           </button>
         </div>
+
+        <p v-if="error" class="automation-error">{{ error }}</p>
       </form>
 
       <aside class="rules-panel">
         <h3>Reglas guardadas</h3>
-        <p v-if="!rules.length" class="empty-rules">No hay reglas guardadas.</p>
-
+        <div v-if="!rules.length" class="empty-rules">Aún no tienes reglas guardadas.</div>
         <div v-else class="rules-list">
           <article v-for="rule in rules" :key="rule.id" class="rule-card">
-            <div>
-              <p class="rule-title">{{ rule.ruleName }}</p>
-              <p class="rule-meta">
-                {{ formatTimeRange(rule.timeRange) }} · {{ rule.limit }} canciones ·
-                {{ rule.publicPlaylist ? "Publica" : "Privada" }}
-              </p>
-            </div>
+            <h4>{{ rule.ruleName }}</h4>
+            <p class="rule-meta">
+              {{ labelTimeRange(rule.timeRange) }} · {{ rule.limit }} canciones ·
+              {{ rule.publicPlaylist ? "Pública" : "Privada" }}
+            </p>
             <div class="rule-actions">
-              <button type="button" class="automation-button secondary" @click="useRule(rule)">
-                Usar
-              </button>
-              <button
-                type="button"
-                class="automation-button"
-                :disabled="loading"
-                @click="executeRule(rule)"
-              >
+              <button type="button" class="automation-button secondary" @click="useRule(rule)">Usar</button>
+              <button type="button" class="automation-button" :disabled="loading" @click="executeRule(rule)">
                 Ejecutar
               </button>
-              <button type="button" class="automation-button secondary" @click="removeRule(rule)">
-                Eliminar
-              </button>
+              <button type="button" class="automation-button secondary" @click="deleteRule(rule.id)">Eliminar</button>
             </div>
           </article>
         </div>
@@ -97,215 +74,144 @@
     </div>
 
     <article v-if="result" class="automation-result">
-      <h4>Playlist creada</h4>
-      <p>{{ result.playlistName }} · {{ result.tracksAdded }} canciones</p>
+      <h3>Playlist creada</h3>
+      <p><strong>{{ result.playlistName || form.playlistName }}</strong></p>
+      <p>{{ result.tracksAdded ?? 0 }} canciones añadidas</p>
       <a
         v-if="result.externalUrl"
         :href="result.externalUrl"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noreferrer"
       >
         Abrir en Spotify
       </a>
     </article>
-
-    <p v-if="error" class="automation-error">{{ error }}</p>
   </section>
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { reactive, ref, computed, onMounted } from "vue";
 import { useAutomation } from "@/modules/automation/composables/useAutomation";
 
-const RULES_KEY = "spotify-tracker.assistant.automationRules";
-
-const { loading, error, result, createTopTracksPlaylist } = useAutomation();
+const STORAGE_KEY = "spotify-tracker.assistant.automationRules";
 
 const form = reactive({
   ruleName: "",
   playlistName: "",
   description: "",
-  timeRange: "short_term",
-  limit: 20,
+  timeRange: "medium_term",
+  limit: 25,
   publicPlaylist: false,
 });
 
-const rules = ref([]);
-const activeRuleId = ref(null);
+const savedRules = ref([]);
+const { loading, error, result, createTopTracksPlaylist } = useAutomation();
 
-const canSaveRule = computed(() => form.ruleName.trim().length > 0);
-const canExecute = computed(() => form.playlistName.trim().length > 0 && isLimitValid());
+const rules = computed(() => savedRules.value);
 
 onMounted(() => {
-  rules.value = loadRules();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    savedRules.value = raw ? JSON.parse(raw) : [];
+  } catch {
+    savedRules.value = [];
+  }
 });
 
-function isLimitValid() {
-  const value = Number(form.limit || 0);
-  return value >= 5 && value <= 50;
-}
-
-function loadRules() {
-  try {
-    const raw = localStorage.getItem(RULES_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
 function persistRules() {
-  localStorage.setItem(RULES_KEY, JSON.stringify(rules.value));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRules.value));
 }
 
-function saveRule() {
-  if (!canSaveRule.value) {
-    return;
-  }
-
-  const payload = buildRulePayload();
-  if (!payload) {
-    return;
-  }
-
-  if (activeRuleId.value) {
-    rules.value = rules.value.map((rule) => (rule.id === activeRuleId.value ? payload : rule));
-  } else {
-    rules.value = [payload, ...rules.value];
-  }
-
-  persistRules();
+function normalizeLimit(value) {
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return 25;
+  return Math.min(50, Math.max(5, numeric));
 }
 
-function useRule(rule) {
-  activeRuleId.value = rule.id;
-  form.ruleName = rule.ruleName;
-  form.playlistName = rule.playlistName;
-  form.description = rule.description || "";
-  form.timeRange = rule.timeRange;
-  form.limit = rule.limit;
-  form.publicPlaylist = rule.publicPlaylist;
-}
-
-function removeRule(rule) {
-  rules.value = rules.value.filter((item) => item.id !== rule.id);
-  if (activeRuleId.value === rule.id) {
-    activeRuleId.value = null;
-  }
-  persistRules();
-}
-
-async function executeRule(rule) {
-  const payload = buildPayloadFromRule(rule);
-  if (!payload) {
-    return;
-  }
-
-  await createTopTracksPlaylist(payload);
-}
-
-async function handleExecute() {
-  if (!canExecute.value) {
-    return;
-  }
-
-  const payload = buildPayloadFromForm();
-  if (!payload) {
-    return;
-  }
-
-  await createTopTracksPlaylist(payload);
-}
-
-function buildPayloadFromForm() {
-  return buildPayload({
-    name: form.playlistName,
-    description: form.description,
-    timeRange: form.timeRange,
-    limit: form.limit,
-    publicPlaylist: form.publicPlaylist,
-  });
-}
-
-function buildPayloadFromRule(rule) {
-  return buildPayload({
-    name: rule.playlistName,
-    description: rule.description,
-    timeRange: rule.timeRange,
-    limit: rule.limit,
-    publicPlaylist: rule.publicPlaylist,
-  });
-}
-
-function buildPayload(payload) {
-  const limit = Number(payload.limit || 0);
-  if (!payload.name || !payload.name.trim() || limit < 5 || limit > 50) {
-    return null;
-  }
-
+function buildPayload(source) {
   return {
-    name: payload.name.trim(),
-    description: payload.description || "",
-    timeRange: payload.timeRange,
-    limit,
-    publicPlaylist: !!payload.publicPlaylist,
+    name: source.playlistName,
+    description: source.description || "",
+    timeRange: source.timeRange,
+    limit: normalizeLimit(source.limit),
+    publicPlaylist: !!source.publicPlaylist,
   };
 }
 
-function buildRulePayload() {
-  const limit = Number(form.limit || 0);
-  if (!form.ruleName.trim() || limit < 5 || limit > 50) {
-    return null;
+function labelTimeRange(value) {
+  if (value === "short_term") return "Último mes";
+  if (value === "long_term") return "Histórico";
+  return "Últimos 6 meses";
+}
+
+function saveRule() {
+  if (!form.ruleName.trim()) {
+    return;
   }
 
-  return {
-    id: activeRuleId.value || buildId(),
+  const rule = {
+    id: `rule_${Date.now()}_${Math.random().toString(16).slice(2)}`,
     ruleName: form.ruleName.trim(),
     playlistName: form.playlistName.trim(),
     description: form.description.trim(),
     timeRange: form.timeRange,
-    limit,
+    limit: normalizeLimit(form.limit),
     publicPlaylist: !!form.publicPlaylist,
   };
+
+  savedRules.value = [rule, ...savedRules.value];
+  persistRules();
 }
 
-function formatTimeRange(range) {
-  switch (range) {
-    case "short_term":
-      return "Ultimo mes";
-    case "medium_term":
-      return "Ultimos 6 meses";
-    case "long_term":
-      return "Historico";
-    default:
-      return "No disponible";
+function useRule(rule) {
+  form.ruleName = rule.ruleName || "";
+  form.playlistName = rule.playlistName || "";
+  form.description = rule.description || "";
+  form.timeRange = rule.timeRange || "medium_term";
+  form.limit = normalizeLimit(rule.limit);
+  form.publicPlaylist = !!rule.publicPlaylist;
+}
+
+async function executeFromForm() {
+  form.limit = normalizeLimit(form.limit);
+  if (!form.playlistName.trim()) {
+    return;
   }
+
+  await createTopTracksPlaylist(buildPayload(form));
 }
 
-function buildId() {
-  return `rule_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+async function executeRule(rule) {
+  if (!rule.playlistName?.trim()) {
+    return;
+  }
+
+  await createTopTracksPlaylist(buildPayload(rule));
+}
+
+function deleteRule(ruleId) {
+  savedRules.value = savedRules.value.filter((rule) => rule.id !== ruleId);
+  persistRules();
 }
 </script>
 
 <style scoped>
 .automation-panel {
-  display: grid;
-  gap: 1.5rem;
-  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .automation-hero {
-  background: linear-gradient(135deg, rgba(18, 50, 55, 0.12), rgba(18, 50, 55, 0.04));
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--app-radius-lg);
-  padding: 1.25rem;
+  padding: 1rem 1.2rem;
   box-shadow: var(--app-shadow-card);
 }
 
 .automation-hero h2 {
   margin: 0 0 0.35rem;
-  font-size: 1.3rem;
   color: var(--color-text);
 }
 
@@ -316,162 +222,148 @@ function buildId() {
 
 .automation-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 1.2rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 1rem;
+}
+
+.automation-form,
+.rules-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-card);
+  padding: 1rem;
 }
 
 .automation-form {
   display: grid;
   gap: 0.8rem;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--app-radius-lg);
-  padding: 1.1rem;
-  box-shadow: var(--app-shadow-card);
 }
 
 .automation-field {
   display: grid;
   gap: 0.35rem;
+}
+
+.automation-field label {
   color: var(--color-muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .automation-field input,
+.automation-field textarea,
 .automation-field select {
-  border: 1px solid var(--color-border-soft);
+  width: 100%;
+  border: 1px solid var(--color-border);
   background: var(--color-surface-soft);
   color: var(--color-text);
   border-radius: 10px;
-  padding: 0.5rem 0.65rem;
-  font-family: inherit;
+  padding: 0.65rem 0.75rem;
 }
 
 .automation-checkbox {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--color-muted);
+  color: var(--color-text);
 }
 
 .automation-actions {
   display: flex;
   gap: 0.6rem;
-  flex-wrap: wrap;
 }
 
 .automation-button {
-  border: none;
+  border: 1px solid var(--color-primary-strong);
   background: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-accent);
   border-radius: 999px;
-  padding: 0.5rem 1.1rem;
-  font-weight: 700;
+  padding: 0.55rem 0.95rem;
   cursor: pointer;
-  transition: background 0.15s, transform 0.15s;
+  font-weight: 600;
 }
 
 .automation-button.secondary {
   background: var(--color-surface-soft);
   color: var(--color-text);
-  border: 1px solid var(--color-border-soft);
-}
-
-.automation-button:hover:not(:disabled) {
-  background: var(--color-primary-strong);
-  transform: translateY(-1px);
-}
-
-.automation-button.secondary:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: var(--color-surface);
+  border-color: var(--color-border-soft);
 }
 
 .automation-button:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-.rules-panel {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--app-radius-lg);
-  padding: 1rem;
-  box-shadow: var(--app-shadow-card);
-  display: grid;
-  gap: 0.85rem;
-}
-
 .rules-panel h3 {
-  margin: 0;
-  font-size: 1rem;
+  margin: 0 0 0.75rem;
   color: var(--color-text);
 }
 
 .rules-list {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.7rem;
 }
 
 .rule-card {
-  border: 1px solid var(--color-border-soft);
   background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  padding: 0.75rem;
-  display: grid;
-  gap: 0.6rem;
+  padding: 0.7rem;
 }
 
-.rule-title {
-  margin: 0;
-  font-weight: 700;
+.rule-card h4 {
+  margin: 0 0 0.35rem;
   color: var(--color-text);
 }
 
 .rule-meta {
-  margin: 0.2rem 0 0;
+  margin: 0 0 0.6rem;
   color: var(--color-muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .rule-actions {
   display: flex;
-  gap: 0.5rem;
   flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
 .automation-result {
-  background: rgba(61, 107, 87, 0.1);
-  border: 1px solid rgba(61, 107, 87, 0.35);
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-success) 45%, var(--color-border));
+  border-radius: var(--app-radius-lg);
+  padding: 1rem;
 }
 
-.automation-result h4 {
+.automation-result h3 {
   margin: 0 0 0.35rem;
   color: var(--color-success);
 }
 
+.automation-result p {
+  margin: 0.2rem 0;
+  color: var(--color-text);
+}
+
 .automation-result a {
-  color: var(--color-success);
+  color: var(--color-accent-wine);
   font-weight: 600;
-  text-decoration: none;
 }
 
 .automation-error {
+  margin: 0;
   color: var(--color-accent-wine);
-  font-size: 0.9rem;
 }
 
 .empty-rules {
   color: var(--color-muted);
-  font-size: 0.85rem;
+  background: var(--color-surface-soft);
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.8rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .automation-grid {
     grid-template-columns: 1fr;
   }
