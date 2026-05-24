@@ -9,6 +9,11 @@ function toOptionalNumber(value) {
   return Number.isFinite(numericValue) ? numericValue : null;
 }
 
+/**
+ * Clase funcional: TopArtist.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras utilidades del frontend.
+ */
 export class TopArtist {
   constructor({
     id = "",

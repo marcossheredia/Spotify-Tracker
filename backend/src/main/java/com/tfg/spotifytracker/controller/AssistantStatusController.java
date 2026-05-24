@@ -18,12 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/assistant")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: AssistantStatusController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: AssistantAiProperties.
+ */
 public class AssistantStatusController {
 
     private final AssistantAiProperties assistantAiProperties;
 
     @Operation(summary = "Estado del proveedor IA del asistente")
     @GetMapping("/status")
+    /** Obtiene datos para esta parte del sistema. */
     public ResponseEntity<AssistantStatusDTO> getStatus(@AuthenticationPrincipal Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {
             throw new UnauthorizedException("Usuario no autenticado en Spotify");

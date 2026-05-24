@@ -13,6 +13,11 @@ import java.util.Objects;
 @Data
 @Component
 @ConfigurationProperties(prefix = "app")
+/**
+ * Clase funcional: AppProperties.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class AppProperties {
 
     private Jwt jwt = new Jwt();
@@ -29,6 +34,8 @@ public class AppProperties {
     public static class Cors {
         private String allowedOrigins = "http://localhost:3000,http://localhost:5173";
 
+        /** Ejecuta una parte concreta de la lógica de esta clase. */
+
         public List<String> allowedOriginsList() {
             return Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
@@ -36,6 +43,8 @@ public class AppProperties {
                 .toList();
         }
     }
+
+    /** Normaliza el valor de entrada para evitar errores. */
 
     public String normalizeBaseUrl(String value) {
         if (value == null || value.isBlank()) {
@@ -63,6 +72,8 @@ public class AppProperties {
         }
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public boolean isAllowedFrontendBaseUrl(String candidate, String backendHost) {
         String normalizedCandidate = normalizeBaseUrl(candidate);
         if (normalizedCandidate == null) {
@@ -89,6 +100,8 @@ public class AppProperties {
         URI candidateUri = URI.create(normalizedCandidate);
         return backendHost.equalsIgnoreCase(candidateUri.getHost());
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     public String resolveAllowedCorsOrigin(String origin, String backendHost) {
         String normalizedOrigin = normalizeBaseUrl(origin);

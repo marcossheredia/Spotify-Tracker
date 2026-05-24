@@ -15,6 +15,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * Clase funcional: Usuario.
+ * Representa datos persistidos en base de datos.
+ * Se conecta con: repositorios y servicios de negocio.
+ */
 public class Usuario {
 
     @Id

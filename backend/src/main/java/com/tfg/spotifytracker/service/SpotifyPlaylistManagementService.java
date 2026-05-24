@@ -17,11 +17,18 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyPlaylistManagementService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyApiClient, SpotifyDtoMapper, SpotifyService.
+ */
 public class SpotifyPlaylistManagementService {
 
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifyDtoMapper mapper;
     private final SpotifyService spotifyService;
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyPagedResponseDTO<SpotifyPlaylistDTO> getAllPlaylists(String accessToken, int limit, int offset) {
         int safeLimit = Math.max(1, Math.min(limit, 50));
@@ -121,6 +128,8 @@ public class SpotifyPlaylistManagementService {
             .build();
     }
 
+    /** Normaliza el valor de entrada para evitar errores. */
+
     private int normalizeLimit(Integer limit) {
         if (limit == null) {
             return 25;
@@ -132,6 +141,8 @@ public class SpotifyPlaylistManagementService {
         return 25;
     }
 
+    /** Normaliza el valor de entrada para evitar errores. */
+
     private String normalizeTimeRange(String raw) {
         String value = SpotifyTimeRange.fromQuery(raw).getApiValue();
         if ("short_term".equals(value) || "medium_term".equals(value) || "long_term".equals(value)) {
@@ -139,6 +150,8 @@ public class SpotifyPlaylistManagementService {
         }
         return "medium_term";
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolvePlaylistName(String rawName, String timeRange) {
         if (StringUtils.hasText(rawName)) {
@@ -150,6 +163,8 @@ public class SpotifyPlaylistManagementService {
             default -> "Mis top canciones - Últimos 6 meses";
         };
     }
+
+    /** Transforma datos de un formato a otro. */
 
     private SpotifyApiException mapPlaylistCreationError(SpotifyApiException ex) {
         Integer status = ex.getStatusCode();
@@ -169,6 +184,8 @@ public class SpotifyPlaylistManagementService {
         }
         return ex;
     }
+
+    /** Transforma datos de un formato a otro. */
 
     private SpotifyApiException mapPlaylistAddTracksError(SpotifyApiException ex) {
         Integer status = ex.getStatusCode();

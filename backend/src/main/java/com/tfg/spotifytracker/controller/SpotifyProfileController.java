@@ -19,6 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/spotify/profile")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyProfileController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyProfileService, SpotifyTokenService.
+ */
 public class SpotifyProfileController {
 
     private final SpotifyProfileService spotifyProfileService;
@@ -26,6 +31,7 @@ public class SpotifyProfileController {
 
     @Operation(summary = "Obtener perfil enriquecido del usuario")
     @GetMapping
+    /** Obtiene datos para esta parte del sistema. */
     public ResponseEntity<SpotifyUserProfileDTO> getProfile(@AuthenticationPrincipal Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {
             throw new UnauthorizedException("Usuario no autenticado en Spotify");

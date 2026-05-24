@@ -21,6 +21,11 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+/**
+ * Clase funcional: JwtAuthenticationFilter.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: JwtTokenProvider, UsuarioRepository.
+ */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -46,6 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

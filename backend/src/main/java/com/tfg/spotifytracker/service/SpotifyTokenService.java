@@ -24,6 +24,11 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyTokenService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: WebClient, UsuarioRepository.
+ */
 public class SpotifyTokenService {
 
     private static final long EXPIRY_SAFETY_WINDOW_SECONDS = 30L;
@@ -39,6 +44,7 @@ public class SpotifyTokenService {
     private String spotifyClientSecret;
 
     @Transactional
+    /** Obtiene datos para esta parte del sistema. */
     public String getValidAccessToken(Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {
             throw new UnauthorizedException("Usuario no autenticado en Spotify");
@@ -53,6 +59,8 @@ public class SpotifyTokenService {
 
         return refreshAccessToken(usuario);
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private String refreshAccessToken(Usuario usuario) {
         if (!StringUtils.hasText(usuario.getRefreshToken())) {
@@ -124,9 +132,13 @@ public class SpotifyTokenService {
         }
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private String asString(Object value) {
         return value != null ? String.valueOf(value) : null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private long asLong(Object value, long defaultValue) {
         if (value instanceof Number number) {

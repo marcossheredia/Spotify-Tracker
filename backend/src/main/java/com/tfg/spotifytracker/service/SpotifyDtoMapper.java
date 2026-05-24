@@ -14,7 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+/**
+ * Clase funcional: SpotifyDtoMapper.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class SpotifyDtoMapper {
+
+    /** Transforma datos de un formato a otro. */
 
     public SpotifyTrackDTO toTrack(Map<String, Object> track) {
         Map<String, Object> album = asMap(track.get("album"));
@@ -36,6 +43,8 @@ public class SpotifyDtoMapper {
             .build();
     }
 
+    /** Transforma datos de un formato a otro. */
+
     public SpotifyArtistDTO toArtist(Map<String, Object> artist) {
         Map<String, Object> followers = asMap(artist.get("followers"));
         Map<String, Object> externalUrls = asMap(artist.get("external_urls"));
@@ -51,6 +60,8 @@ public class SpotifyDtoMapper {
             .build();
     }
 
+    /** Transforma datos de un formato a otro. */
+
     public SpotifyAlbumDTO toAlbum(Map<String, Object> album) {
         Map<String, Object> externalUrls = asMap(album.get("external_urls"));
 
@@ -65,6 +76,8 @@ public class SpotifyDtoMapper {
             .externalUrl(asString(externalUrls.get("spotify")))
             .build();
     }
+
+    /** Transforma datos de un formato a otro. */
 
     public SpotifyPlaylistDTO toPlaylist(Map<String, Object> playlist) {
         Map<String, Object> externalUrls = asMap(playlist.get("external_urls"));
@@ -84,6 +97,8 @@ public class SpotifyDtoMapper {
             .ownPlaylist(false)
             .build();
     }
+
+    /** Transforma datos de un formato a otro. */
 
     public SpotifyNowPlayingDTO toNowPlayingTrack(Map<String, Object> item, Map<String, Object> context) {
         if (item.isEmpty()) {
@@ -106,6 +121,8 @@ public class SpotifyDtoMapper {
             .build();
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     public List<Map<String, Object>> extractItems(Map<String, Object> response) {
         Object itemsObj = response.get("items");
         if (!(itemsObj instanceof List<?> items)) {
@@ -118,6 +135,8 @@ public class SpotifyDtoMapper {
         }
         return parsedItems;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public Map<String, Object> asMap(Object value) {
         if (!(value instanceof Map<?, ?> rawMap)) {
@@ -132,6 +151,8 @@ public class SpotifyDtoMapper {
         });
         return map;
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     public List<String> extractNamedValues(Object value, String fieldName) {
         if (!(value instanceof List<?> list)) {
@@ -149,6 +170,8 @@ public class SpotifyDtoMapper {
         return values;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public List<String> asStringList(Object value) {
         if (!(value instanceof List<?> list)) {
             return List.of();
@@ -164,6 +187,8 @@ public class SpotifyDtoMapper {
         return values;
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     public String extractImageUrl(Map<String, Object> source) {
         Object imagesObj = source.get("images");
         if (!(imagesObj instanceof List<?> images) || images.isEmpty()) {
@@ -173,6 +198,8 @@ public class SpotifyDtoMapper {
         Map<String, Object> firstImage = asMap(images.get(0));
         return asString(firstImage.get("url"));
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     public Integer extractPlaylistTracksTotal(Map<String, Object> playlist) {
         Map<String, Object> tracks = asMap(playlist.get("tracks"));
@@ -195,6 +222,8 @@ public class SpotifyDtoMapper {
         return 0;
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     public String extractPlaylistOwnerName(Map<String, Object> playlist) {
         Map<String, Object> owner = asMap(playlist.get("owner"));
         String ownerDisplayName = asString(owner.get("display_name"));
@@ -205,9 +234,13 @@ public class SpotifyDtoMapper {
         return asString(owner.get("id"));
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public String asString(Object value) {
         return value != null ? String.valueOf(value) : null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public Integer asNullableInteger(Object value) {
         if (value instanceof Number number) {
@@ -221,6 +254,8 @@ public class SpotifyDtoMapper {
         return null;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public Boolean asBoolean(Object value) {
         if (value instanceof Boolean bool) {
             return bool;
@@ -232,6 +267,8 @@ public class SpotifyDtoMapper {
 
         return null;
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private Integer extractYear(String releaseDate) {
         if (!StringUtils.hasText(releaseDate)) {

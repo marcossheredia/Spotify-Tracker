@@ -13,11 +13,18 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyLibraryService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyApiClient, SpotifyDtoMapper, SpotifyLibraryCompatibilityService.
+ */
 public class SpotifyLibraryService {
 
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifyDtoMapper mapper;
     private final SpotifyLibraryCompatibilityService spotifyLibraryCompatibilityService;
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyPagedResponseDTO<SpotifySavedTrackDTO> getSavedTracks(String accessToken, int limit, int offset) {
         int safeLimit = Math.max(1, Math.min(limit, 50));
@@ -55,6 +62,8 @@ public class SpotifyLibraryService {
             .hasNext(response.get("next") != null)
             .build();
     }
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyPagedResponseDTO<SpotifySavedAlbumDTO> getSavedAlbums(String accessToken, int limit, int offset) {
         int safeLimit = Math.max(1, Math.min(limit, 50));
@@ -94,6 +103,8 @@ public class SpotifyLibraryService {
             .build();
     }
 
+    /** Guarda o actualiza datos en el sistema. */
+
     public SpotifyActionResultDTO saveTrack(String accessToken, String trackId) {
         spotifyLibraryCompatibilityService.saveTrack(accessToken, trackId);
         return SpotifyActionResultDTO.builder()
@@ -102,6 +113,8 @@ public class SpotifyLibraryService {
             .message("Cancion guardada en Tu Biblioteca")
             .build();
     }
+
+    /** Elimina o desvincula datos según el caso. */
 
     public SpotifyActionResultDTO removeTrack(String accessToken, String trackId) {
         spotifyLibraryCompatibilityService.removeTrack(accessToken, trackId);
@@ -112,6 +125,8 @@ public class SpotifyLibraryService {
             .build();
     }
 
+    /** Guarda o actualiza datos en el sistema. */
+
     public SpotifyActionResultDTO saveAlbum(String accessToken, String albumId) {
         spotifyLibraryCompatibilityService.saveAlbum(accessToken, albumId);
         return SpotifyActionResultDTO.builder()
@@ -120,6 +135,8 @@ public class SpotifyLibraryService {
             .message("Album guardado en Tu Biblioteca")
             .build();
     }
+
+    /** Elimina o desvincula datos según el caso. */
 
     public SpotifyActionResultDTO removeAlbum(String accessToken, String albumId) {
         spotifyLibraryCompatibilityService.removeAlbum(accessToken, albumId);

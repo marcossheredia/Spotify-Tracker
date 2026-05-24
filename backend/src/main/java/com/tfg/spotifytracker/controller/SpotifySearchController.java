@@ -24,6 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/spotify/search")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifySearchController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifySearchService, SpotifyTokenService.
+ */
 public class SpotifySearchController {
 
     private final SpotifySearchService spotifySearchService;

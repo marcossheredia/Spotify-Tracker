@@ -30,16 +30,26 @@ function normalizeHistory(payload = {}) {
   };
 }
 
+/**
+ * Clase funcional: PlaytimeStatsService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras utilidades del frontend.
+ */
 export class PlaytimeStatsService {
+  /** Sincroniza datos para mantenerlos al día. */
   async syncRecentPlaytime() {
     const { data } = await api.post("/api/spotify/sync/recent-playtime");
     return normalizeStats(data);
   }
 
+  /** Obtiene datos para esta parte del sistema. */
+
   async getPlaytimeStats() {
     const { data } = await api.get("/api/spotify/stats/playtime");
     return normalizeStats(data);
   }
+
+  /** Obtiene datos para esta parte del sistema. */
 
   async getPlaytimeHistory({ from, to, frequency } = {}) {
     const params = {};

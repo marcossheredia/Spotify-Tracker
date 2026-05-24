@@ -4,6 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_GATEWAY)
+/**
+ * Clase funcional: SpotifyApiException.
+ * Representa un error controlado de la aplicacion.
+ * Se conecta con: servicios, controladores y manejador global de errores.
+ */
 public class SpotifyApiException extends RuntimeException {
     private final Integer statusCode;
     private final Integer retryAfterSeconds;
@@ -47,18 +52,22 @@ public class SpotifyApiException extends RuntimeException {
         this.spotifyErrorCategory = spotifyErrorCategory;
     }
 
+    /** Devuelve un dato concreto de esta clase. */
     public Integer getStatusCode() {
         return statusCode;
     }
 
+    /** Devuelve un dato concreto de esta clase. */
     public Integer getRetryAfterSeconds() {
         return retryAfterSeconds;
     }
 
+    /** Devuelve un dato concreto de esta clase. */
     public String getSpotifyErrorCode() {
         return spotifyErrorCode;
     }
 
+    /** Devuelve un dato concreto de esta clase. */
     public String getSpotifyErrorCategory() {
         return spotifyErrorCategory;
     }

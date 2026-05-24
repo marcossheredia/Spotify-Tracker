@@ -12,6 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+/**
+ * Clase funcional: SpotifyAuthorizationRequestResolver.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: OAuth2AuthorizationRequestResolver.
+ */
 public class SpotifyAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
     private final OAuth2AuthorizationRequestResolver defaultResolver;
@@ -24,14 +29,18 @@ public class SpotifyAuthorizationRequestResolver implements OAuth2AuthorizationR
     }
 
     @Override
+    /** Resuelve un valor final a partir del contexto actual. */
     public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
         return customize(defaultResolver.resolve(request));
     }
 
     @Override
+    /** Resuelve un valor final a partir del contexto actual. */
     public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
         return customize(defaultResolver.resolve(request, clientRegistrationId));
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private OAuth2AuthorizationRequest customize(OAuth2AuthorizationRequest request) {
         if (request == null) {

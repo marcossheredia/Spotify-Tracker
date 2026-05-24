@@ -7,5 +7,10 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
+/**
+ * Clase funcional: UsuarioEstadisticasRepository.
+ * Gestiona acceso a datos en base de datos.
+ * Se conecta con: entidades y servicios.
+ */
 public interface UsuarioEstadisticasRepository extends JpaRepository<UsuarioEstadisticas, UUID> {
 }

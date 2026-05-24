@@ -30,6 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/spotify/follow")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyFollowController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyFollowService, SpotifyTokenService.
+ */
 public class SpotifyFollowController {
 
     private final SpotifyFollowService spotifyFollowService;
@@ -81,6 +86,8 @@ public class SpotifyFollowController {
     ) {
         return ResponseEntity.ok(spotifyFollowService.unfollowPlaylist(resolveAccessToken(usuario), playlistId));
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveAccessToken(Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {

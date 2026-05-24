@@ -2,13 +2,20 @@
   <section class="search-view">
     <header>
       <h1>Busqueda Global</h1>
+
       <form class="search-controls" @submit.prevent="handleSearch">
-        <input
-          v-model="query"
-          type="search"
-          placeholder="Busca tracks, artistas, albumes o playlists"
-        />
-        <button type="submit" class="search-button" :disabled="loading">Buscar</button>
+        <div class="search-input-row">
+          <input
+            v-model="query"
+            type="search"
+            placeholder="Busca tracks, artistas, albumes o playlists"
+            autocomplete="off"
+          />
+          <button type="submit" class="search-button" :disabled="loading || !canSubmit">
+            {{ loading ? "Buscando..." : "Buscar" }}
+          </button>
+        </div>
+
         <div class="types">
           <label v-for="option in typeOptions" :key="option.value">
             <input v-model="selectedTypes" type="checkbox" :value="option.value" />
@@ -19,7 +26,7 @@
         <section v-if="showSuggestedArtists" class="suggested-artists">
           <div class="suggested-artists__header">
             <h2>Artistas para descubrir</h2>
-            <p>Ideas rapidas para empezar a buscar.</p>
+            <p>Ideas rapidas para empezar a buscar. No consumen peticiones hasta pulsarlas.</p>
           </div>
 
           <div class="suggested-artists__grid">
@@ -31,8 +38,7 @@
               @click="searchSuggestedArtist(artist)"
             >
               <div class="suggested-artist-card__image">
-                <img v-if="artist.imageUrl" :src="artist.imageUrl" :alt="artist.name" />
-                <span v-else>★</span>
+                <span>★</span>
               </div>
               <span class="suggested-artist-card__name">{{ artist.name }}</span>
             </button>
@@ -43,6 +49,7 @@
 
     <p v-if="loading" class="loading">Buscando...</p>
     <p v-if="error" class="error">{{ error }}</p>
+    <p v-if="hint" class="hint">{{ hint }}</p>
 
     <div v-if="showEmpty" class="empty">Sin resultados para esta busqueda.</div>
 
@@ -186,20 +193,26 @@ const typeOptions = [
 
 const query = ref("");
 const selectedTypes = ref(["track", "artist", "album", "playlist"]);
-const { results, loading, error, executeSearch } = useGlobalSearch();
-const suggestedArtists = ref([
-  { id: "sugg-rock-1", name: "Pearl Jam" },
-  { id: "sugg-rock-2", name: "Led Zeppelin" },
-  { id: "sugg-rock-3", name: "Fleetwood Mac" },
-  { id: "sugg-rock-4", name: "Nirvana" },
-  { id: "sugg-rock-5", name: "Queen" },
-  { id: "sugg-rock-6", name: "David Bowie" },
-  { id: "sugg-rock-7", name: "Radiohead" },
-  { id: "sugg-rock-8", name: "Pink Floyd" },
-]);
+const hasSearched = ref(false);
+const hint = ref("");
 
+const { results, loading, error, executeSearch, clearResults } = useGlobalSearch();
+
+const suggestedArtists = [
+  { id: "pearl-jam", name: "Pearl Jam" },
+  { id: "led-zeppelin", name: "Led Zeppelin" },
+  { id: "fleetwood-mac", name: "Fleetwood Mac" },
+  { id: "nirvana", name: "Nirvana" },
+  { id: "queen", name: "Queen" },
+  { id: "david-bowie", name: "David Bowie" },
+  { id: "radiohead", name: "Radiohead" },
+  { id: "pink-floyd", name: "Pink Floyd" },
+];
+
+const canSubmit = computed(() => query.value.trim().length >= 3 && selectedTypes.value.length > 0);
+const showSuggestedArtists = computed(() => !query.value.trim() && !loading.value);
 const showEmpty = computed(() => {
-  if (loading.value || !query.value.trim()) {
+  if (loading.value || error.value || !hasSearched.value) {
     return false;
   }
 
@@ -211,23 +224,36 @@ const showEmpty = computed(() => {
   ].every((count) => count === 0);
 });
 
-const hasQuery = computed(() => query.value.trim().length > 0);
-const showSuggestedArtists = computed(
-  () => !hasQuery.value && !loading.value && suggestedArtists.value.length > 0
-);
+async function handleSearch() {
+  const safeQuery = query.value.trim();
+  hint.value = "";
 
-function handleSearch() {
-  if (!selectedTypes.value.length) {
+  if (!safeQuery) {
+    hasSearched.value = false;
+    clearResults();
     return;
   }
-  const types = selectedTypes.value.join(",");
-  executeSearch(query.value, types, 10);
+
+  if (safeQuery.length < 3) {
+    hint.value = "Escribe al menos 3 caracteres para buscar.";
+    return;
+  }
+
+  if (!selectedTypes.value.length) {
+    hint.value = "Selecciona al menos un tipo de resultado.";
+    return;
+  }
+
+  hasSearched.value = true;
+  await executeSearch(safeQuery, selectedTypes.value.join(","), 10);
 }
 
-function searchSuggestedArtist(artist) {
+async function searchSuggestedArtist(artist) {
   query.value = artist.name;
   selectedTypes.value = ["artist"];
-  executeSearch(artist.name, "artist", 10);
+  hasSearched.value = true;
+  hint.value = "";
+  await executeSearch(artist.name, "artist", 10);
 }
 </script>
 
@@ -250,6 +276,13 @@ function searchSuggestedArtist(artist) {
   gap: 0.7rem;
 }
 
+.search-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+}
+
 .search-controls input[type="search"] {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -264,6 +297,26 @@ function searchSuggestedArtist(artist) {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(207, 163, 113, 0.18);
+}
+
+.search-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  color: white;
+  background: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.search-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.search-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .types {
@@ -337,12 +390,6 @@ function searchSuggestedArtist(artist) {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-.suggested-artist-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .suggested-artist-card__image span {
@@ -456,5 +503,12 @@ a.result-title:hover {
 
 .loading { color: var(--color-muted); margin-top: 1rem; }
 .error { color: var(--color-accent-wine); margin-top: 1rem; }
+.hint { color: var(--color-muted); margin-top: 1rem; }
 .empty { color: var(--color-muted); margin-top: 1rem; }
+
+@media (max-width: 720px) {
+  .search-input-row {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

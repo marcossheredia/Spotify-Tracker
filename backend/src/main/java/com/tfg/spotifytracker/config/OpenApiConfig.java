@@ -9,9 +9,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+/**
+ * Clase funcional: OpenApiConfig.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class OpenApiConfig {
 
     @Bean
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public OpenAPI openAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()

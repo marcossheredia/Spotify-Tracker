@@ -13,11 +13,17 @@ import java.util.Optional;
 @Service
 @ConditionalOnProperty(prefix = "assistant.ai", name = "provider", havingValue = "mock", matchIfMissing = true)
 @RequiredArgsConstructor
+/**
+ * Clase funcional: MockAssistantAiService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: AssistantAiProperties.
+ */
 public class MockAssistantAiService implements AssistantAiService {
 
     private final AssistantAiProperties assistantAiProperties;
 
     @Override
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public Optional<AssistantPlaylistPlanDTO> generatePlan(String message, Integer trackLimit, Boolean publicPlaylist) {
         if (!"mock".equalsIgnoreCase(assistantAiProperties.getProvider())) {
             log.info("Assistant AI provider {} configured but no implementation is active. Using fallback planner.",

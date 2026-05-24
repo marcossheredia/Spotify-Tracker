@@ -23,6 +23,11 @@ import java.time.Instant;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+/**
+ * Clase funcional: OAuth2SuccessHandler.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: JwtTokenProvider, UsuarioService, OAuth2AuthorizedClientService, AppProperties.
+ */
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -67,6 +72,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveFrontendBaseUrl(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

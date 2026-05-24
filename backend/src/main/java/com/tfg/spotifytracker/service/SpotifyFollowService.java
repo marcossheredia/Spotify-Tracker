@@ -12,11 +12,18 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyFollowService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyApiClient, SpotifyDtoMapper, SpotifyLibraryCompatibilityService.
+ */
 public class SpotifyFollowService {
 
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifyDtoMapper mapper;
     private final SpotifyLibraryCompatibilityService spotifyLibraryCompatibilityService;
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyPagedResponseDTO<SpotifyArtistDTO> getFollowedArtists(String accessToken, int limit, String after) {
         int safeLimit = Math.max(1, Math.min(limit, 50));
@@ -46,6 +53,8 @@ public class SpotifyFollowService {
             .build();
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public SpotifyActionResultDTO followArtist(String accessToken, String artistId) {
         spotifyLibraryCompatibilityService.followArtist(accessToken, artistId);
         return SpotifyActionResultDTO.builder()
@@ -54,6 +63,8 @@ public class SpotifyFollowService {
             .message("Artista seguido correctamente")
             .build();
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public SpotifyActionResultDTO unfollowArtist(String accessToken, String artistId) {
         spotifyLibraryCompatibilityService.unfollowArtist(accessToken, artistId);
@@ -64,6 +75,8 @@ public class SpotifyFollowService {
             .build();
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public SpotifyActionResultDTO followPlaylist(String accessToken, String playlistId) {
         spotifyLibraryCompatibilityService.followPlaylist(accessToken, playlistId);
         return SpotifyActionResultDTO.builder()
@@ -72,6 +85,8 @@ public class SpotifyFollowService {
             .message("Playlist seguida correctamente")
             .build();
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public SpotifyActionResultDTO unfollowPlaylist(String accessToken, String playlistId) {
         spotifyLibraryCompatibilityService.unfollowPlaylist(accessToken, playlistId);

@@ -9,10 +9,17 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyProfileService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyApiClient, SpotifyDtoMapper.
+ */
 public class SpotifyProfileService {
 
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifyDtoMapper mapper;
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyUserProfileDTO getProfile(String accessToken, Usuario usuario) {
         Map<String, Object> profile = spotifyApiClient.getMap(accessToken, "/me");
@@ -36,6 +43,8 @@ public class SpotifyProfileService {
             .capabilitiesNote(resolveCapabilitiesNote(productKnown, premium))
             .build();
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveCapabilitiesNote(boolean productKnown, boolean premium) {
         if (!productKnown) {

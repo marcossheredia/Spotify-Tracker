@@ -27,6 +27,11 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SecurityConfig.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: CustomOAuth2UserService, OAuth2SuccessHandler, JwtAuthenticationFilter, FrontendRedirectUrlFilter, AppProperties, SpotifyAuthorizationRequestResolver.
+ */
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -73,6 +78,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();

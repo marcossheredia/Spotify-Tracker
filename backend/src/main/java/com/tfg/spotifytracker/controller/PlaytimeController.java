@@ -21,6 +21,11 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/playtime")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: PlaytimeController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: RecentPlaybackSyncService.
+ */
 public class PlaytimeController {
 
     private final RecentPlaybackSyncService recentPlaybackSyncService;

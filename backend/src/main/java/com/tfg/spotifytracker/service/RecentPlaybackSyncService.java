@@ -32,6 +32,11 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: RecentPlaybackSyncService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: UsuarioEstadisticasRepository, ReproduccionRecienteRepository, SpotifyService, SpotifyTokenService.
+ */
 public class RecentPlaybackSyncService {
 
     private static final int RECENT_PLAYED_LIMIT = 50;
@@ -45,6 +50,7 @@ public class RecentPlaybackSyncService {
     private final SpotifyTokenService spotifyTokenService;
 
     @Transactional
+    /** Sincroniza datos para mantenerlos al día. */
     public RecentPlaybackSyncResponseDTO syncRecentPlaytime(Usuario usuario) {
         UsuarioEstadisticas estadisticas = getOrCreateEstadisticas(usuario.getId());
         String validAccessToken = spotifyTokenService.getValidAccessToken(usuario);
@@ -73,12 +79,14 @@ public class RecentPlaybackSyncService {
     }
 
     @Transactional
+    /** Obtiene datos para esta parte del sistema. */
     public RecentPlaybackSyncResponseDTO getPlaytimeStats(Usuario usuario) {
         UsuarioEstadisticas estadisticas = getOrCreateEstadisticas(usuario.getId());
         return toResponse(estadisticas, 0L, 0L);
     }
 
     @Transactional(readOnly = true)
+    /** Obtiene datos para esta parte del sistema. */
     public PlaytimeHistoryResponseDTO getPlaytimeHistory(Usuario usuario, Instant from, Instant to, String granularity) {
         UUID usuarioId = Objects.requireNonNull(usuario.getId(), "usuarioId no puede ser null");
         Instant resolvedFrom = from;
@@ -152,6 +160,7 @@ public class RecentPlaybackSyncService {
     }
 
     @Transactional(readOnly = true)
+    /** Obtiene datos para esta parte del sistema. */
     public PlaytimeHistoryResponseDTO getPlaytimeHistoryByDate(Usuario usuario, LocalDate from, LocalDate to, String frequency) {
         String safeFrequency = normalizeFrequency(frequency);
         LocalDate resolvedToDate = to != null ? to : LocalDate.now(ZoneOffset.UTC);
@@ -167,6 +176,8 @@ public class RecentPlaybackSyncService {
         return getPlaytimeHistory(usuario, fromInstant, toInstant, safeFrequency);
     }
 
+    /** Obtiene datos para esta parte del sistema. */
+
     private UsuarioEstadisticas getOrCreateEstadisticas(UUID usuarioId) {
         UUID safeUsuarioId = Objects.requireNonNull(usuarioId, "usuarioId no puede ser null");
 
@@ -180,6 +191,8 @@ public class RecentPlaybackSyncService {
                 return usuarioEstadisticasRepository.save(Objects.requireNonNull(created, "No se pudo crear estadisticas"));
             });
     }
+
+    /** Sincroniza datos para mantenerlos al día. */
 
     private SyncAccumulator syncIncremental(UUID usuarioId, String accessToken, Long baselineLastPlayedMs) {
         SyncAccumulator accumulator = new SyncAccumulator();
@@ -236,6 +249,8 @@ public class RecentPlaybackSyncService {
         return accumulator;
     }
 
+    /** Sincroniza datos para mantenerlos al día. */
+
     private SyncAccumulator syncInitialBackfill(UUID usuarioId, String accessToken) {
         SyncAccumulator accumulator = new SyncAccumulator();
         Long cursorBefore = null;
@@ -279,6 +294,8 @@ public class RecentPlaybackSyncService {
         return accumulator;
     }
 
+    /** Guarda o actualiza datos en el sistema. */
+
     private boolean saveIfNew(ReproduccionReciente reproduccion) {
         boolean alreadyExists = reproduccionRecienteRepository.existsByUsuarioIdAndSpotifyTrackIdAndPlayedAtMs(
             reproduccion.getUsuarioId(),
@@ -315,6 +332,8 @@ public class RecentPlaybackSyncService {
             .build();
     }
 
+    /** Transforma datos de un formato a otro. */
+
     private ReproduccionReciente toReproduccionReciente(UUID usuarioId, Map<String, Object> item) {
         Map<String, Object> track = asMap(item.get("track"));
         String spotifyTrackId = asString(track.get("id"));
@@ -347,15 +366,21 @@ public class RecentPlaybackSyncService {
             .build();
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private Long extractCursorAfter(Map<String, Object> response) {
         Map<String, Object> cursors = asMap(response.get("cursors"));
         return asLong(cursors.get("after"));
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private Long extractCursorBefore(Map<String, Object> response) {
         Map<String, Object> cursors = asMap(response.get("cursors"));
         return asLong(cursors.get("before"));
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private List<Map<String, Object>> extractItems(Map<String, Object> response) {
         Object itemsObj = response.get("items");
@@ -369,6 +394,8 @@ public class RecentPlaybackSyncService {
         }
         return parsedItems;
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private List<String> extractNamedValues(Object value, String fieldName) {
         if (!(value instanceof List<?> list)) {
@@ -386,6 +413,8 @@ public class RecentPlaybackSyncService {
         return names;
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private String extractFirstImageUrl(Map<String, Object> album) {
         Object imagesObj = album.get("images");
         if (!(imagesObj instanceof List<?> images) || images.isEmpty()) {
@@ -395,6 +424,8 @@ public class RecentPlaybackSyncService {
         Map<String, Object> firstImage = asMap(images.get(0));
         return asString(firstImage.get("url"));
     }
+
+    /** Convierte texto o datos en un formato utilizable. */
 
     private Instant parseInstant(Object value) {
         String text = asString(value);
@@ -410,6 +441,8 @@ public class RecentPlaybackSyncService {
         }
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private Map<String, Object> asMap(Object value) {
         if (!(value instanceof Map<?, ?> rawMap)) {
             return Map.of();
@@ -424,9 +457,13 @@ public class RecentPlaybackSyncService {
         return map;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private String asString(Object value) {
         return value != null ? String.valueOf(value) : null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Integer asInteger(Object value) {
         if (value instanceof Number number) {
@@ -440,6 +477,8 @@ public class RecentPlaybackSyncService {
         return 0;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private Long asLong(Object value) {
         if (value instanceof Number number) {
             return number.longValue();
@@ -452,9 +491,13 @@ public class RecentPlaybackSyncService {
         return null;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private long safeLong(Long value) {
         return value != null ? value : 0L;
     }
+
+    /** Transforma datos de un formato a otro. */
 
     private Instant toInstant(Object value) {
         if (value instanceof Instant instant) {
@@ -483,6 +526,8 @@ public class RecentPlaybackSyncService {
 
         return null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Long maxNullable(Long base, Long candidate) {
         if (candidate == null) {
@@ -517,6 +562,8 @@ public class RecentPlaybackSyncService {
         return points;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private Instant truncateInstant(Instant instant, String granularity) {
         ZonedDateTime zdt = instant.atZone(ZoneOffset.UTC);
         return switch (granularity) {
@@ -527,6 +574,8 @@ public class RecentPlaybackSyncService {
         };
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private Instant advance(Instant instant, String granularity) {
         return switch (granularity) {
             case "week" -> instant.plusSeconds(7L * 24L * 3600L);
@@ -534,6 +583,8 @@ public class RecentPlaybackSyncService {
             default -> instant.plusSeconds(24L * 3600L);
         };
     }
+
+    /** Normaliza el valor de entrada para evitar errores. */
 
     private String normalizeFrequency(String frequency) {
         if (!StringUtils.hasText(frequency)) {
@@ -551,6 +602,8 @@ public class RecentPlaybackSyncService {
         private long addedDurationMs;
         private Long maxProcessedPlayedAtMs;
         private Instant maxProcessedPlayedAt;
+
+        /** Ejecuta una parte concreta de la lógica de esta clase. */
 
         private void trackMaxProcessed(ReproduccionReciente reproduccion) {
             Long playedAtMs = reproduccion.getPlayedAtMs();

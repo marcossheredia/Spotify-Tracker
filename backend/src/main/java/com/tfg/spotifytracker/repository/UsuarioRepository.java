@@ -8,6 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
+/**
+ * Clase funcional: UsuarioRepository.
+ * Gestiona acceso a datos en base de datos.
+ * Se conecta con: entidades y servicios.
+ */
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Optional<Usuario> findBySpotifyId(String spotifyId);
     Optional<Usuario> findByEmail(String email);

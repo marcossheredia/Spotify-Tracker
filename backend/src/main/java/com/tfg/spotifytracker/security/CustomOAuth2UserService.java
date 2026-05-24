@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+/**
+ * Clase funcional: CustomOAuth2UserService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override

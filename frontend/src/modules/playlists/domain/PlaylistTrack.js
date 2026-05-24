@@ -20,6 +20,11 @@ function formatDuration(durationMs) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+/**
+ * Clase funcional: PlaylistTrack.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras utilidades del frontend.
+ */
 export class PlaylistTrack {
   constructor({
     id = "",

@@ -31,6 +31,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * Clase funcional: ReproduccionReciente.
+ * Representa datos persistidos en base de datos.
+ * Se conecta con: repositorios y servicios de negocio.
+ */
 public class ReproduccionReciente {
 
     @Id

@@ -14,11 +14,18 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyCompatibilityService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyApiClient, SpotifyDtoMapper, SpotifyLibraryCompatibilityService.
+ */
 public class SpotifyCompatibilityService {
 
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifyDtoMapper mapper;
     private final SpotifyLibraryCompatibilityService spotifyLibraryCompatibilityService;
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyCompatibilityStatusDTO getStatus(String accessToken) {
         List<String> warnings = new ArrayList<>();
@@ -102,6 +109,8 @@ public class SpotifyCompatibilityService {
             .warnings(warnings)
             .build();
     }
+
+    /** Construye una respuesta o estructura intermedia. */
 
     private String buildWarning(String area, SpotifyApiException ex) {
         Integer status = ex.getStatusCode();

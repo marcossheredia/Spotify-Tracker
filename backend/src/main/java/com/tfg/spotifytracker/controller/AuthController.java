@@ -16,18 +16,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: AuthController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: UsuarioMapper.
+ */
 public class AuthController {
 
     private final UsuarioMapper usuarioMapper;
 
     @Operation(summary = "Obtener usuario autenticado")
     @GetMapping("/me")
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public ResponseEntity<UsuarioDTO> me(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(usuarioMapper.toDTO(usuario));
     }
 
     @Operation(summary = "Verificar estado de autenticación")
     @GetMapping("/status")
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public ResponseEntity<Boolean> status(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(usuario != null);
     }

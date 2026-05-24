@@ -15,25 +15,34 @@ import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
+/**
+ * Clase funcional: GlobalExceptionHandler.
+ * Representa un error controlado de la aplicacion.
+ * Se conecta con: servicios, controladores y manejador global de errores.
+ */
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
+    /** Gestiona este caso y devuelve una respuesta controlada. */
     public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
         log.warn("ResourceNotFound: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), req.getRequestURI());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
+    /** Gestiona este caso y devuelve una respuesta controlada. */
     public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), req.getRequestURI());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
+    /** Gestiona este caso y devuelve una respuesta controlada. */
     public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.FORBIDDEN, "Acceso denegado", req.getRequestURI());
     }
 
     @ExceptionHandler(SpotifyApiException.class)
+    /** Gestiona este caso y devuelve una respuesta controlada. */
     public ResponseEntity<ApiError> handleSpotifyApi(SpotifyApiException ex, HttpServletRequest req) {
         HttpStatus status = resolveSpotifyStatus(ex.getStatusCode());
         log.warn("SpotifyApiException status={} retryAfter={} message={}", ex.getStatusCode(), ex.getRetryAfterSeconds(), ex.getMessage());
@@ -66,6 +75,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    /** Gestiona este caso y devuelve una respuesta controlada. */
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
         List<String> details = ex.getBindingResult().getFieldErrors()
             .stream()
@@ -85,11 +95,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    /** Gestiona este caso y devuelve una respuesta controlada. */
     public ResponseEntity<ApiError> handleGeneral(Exception ex, HttpServletRequest req) {
         log.error("Unhandled exception type={} path={} message={}", ex.getClass().getName(), req.getRequestURI(), ex.getMessage(), ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor", req.getRequestURI());
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, String message, String path) {
         ApiError error = ApiError.builder()
             .status(status.value())
@@ -101,6 +113,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     private HttpStatus resolveSpotifyStatus(Integer spotifyStatus) {
         if (spotifyStatus == null) {
             return HttpStatus.BAD_GATEWAY;
@@ -118,6 +131,7 @@ public class GlobalExceptionHandler {
         };
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     private String resolveSpotifyMessage(HttpStatus status, SpotifyApiException ex) {
         if (status == HttpStatus.UNAUTHORIZED) {
             return "Spotify rechazo el token. Vuelve a iniciar sesion.";

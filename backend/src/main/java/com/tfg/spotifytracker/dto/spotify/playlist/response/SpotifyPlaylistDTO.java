@@ -5,6 +5,11 @@ import lombok.Data;
 
 @Data
 @Builder
+/**
+ * Clase funcional: SpotifyPlaylistDTO.
+ * Representa datos que viajan entre capas o por la API.
+ * Se conecta con: controladores y servicios que leen o devuelven estos datos.
+ */
 public class SpotifyPlaylistDTO {
     private String id;
     private String name;

@@ -36,6 +36,11 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/api/spotify")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyService, RecentPlaybackSyncService, SpotifyTokenService.
+ */
 public class SpotifyController {
 
     private final SpotifyService spotifyService;

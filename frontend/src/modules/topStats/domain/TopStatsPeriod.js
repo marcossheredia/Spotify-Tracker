@@ -4,6 +4,11 @@ const PERIOD_OPTIONS = [
   { value: "long_term", label: "Todo el tiempo" },
 ];
 
+/**
+ * Clase funcional: TopStatsPeriod.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras utilidades del frontend.
+ */
 export class TopStatsPeriod {
   static SHORT_TERM = "short_term";
 

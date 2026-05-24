@@ -13,6 +13,11 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * Clase funcional: FrontendRedirectUrlFilter.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: AppProperties.
+ */
 public class FrontendRedirectUrlFilter extends OncePerRequestFilter {
 
     public static final String FRONTEND_BASE_URL_SESSION_ATTRIBUTE = "spotifyTracker.frontendBaseUrl";
@@ -20,6 +25,7 @@ public class FrontendRedirectUrlFilter extends OncePerRequestFilter {
     private final AppProperties appProperties;
 
     @Override
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return !request.getRequestURI().startsWith("/oauth2/authorization/");
     }
@@ -39,6 +45,8 @@ public class FrontendRedirectUrlFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private String extractFrontendBaseUrl(HttpServletRequest request) {
         String frontendUrlParam = request.getParameter("frontend_url");

@@ -35,6 +35,11 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: WebClient, SpotifyLibraryCompatibilityService.
+ */
 public class SpotifyService {
 
     private static final int MAX_PLAYLISTS_LIST_LIMIT = 500;
@@ -49,11 +54,13 @@ public class SpotifyService {
     private final SpotifyLibraryCompatibilityService spotifyLibraryCompatibilityService;
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public Map<String, Object> getCurrentUserProfile(String accessToken) {
         return getSpotifyResource(accessToken, "/me");
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public List<SpotifyPlaylistDTO> getRecentlyPlayedPlaylists(String accessToken, int limit) {
         int safeLimit = Math.max(1, Math.min(limit, MAX_PLAYLISTS_LIST_LIMIT));
         LinkedHashMap<String, String> playlistLastPlayedById = collectRecentPlaylistIds(accessToken, safeLimit);
@@ -90,6 +97,7 @@ public class SpotifyService {
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public SpotifyPlaylistDetailDTO getPlaylistDetail(String accessToken, String playlistId, int limit) {
         int safeLimit = Math.max(1, Math.min(limit, MAX_PLAYLIST_DETAIL_TRACKS));
         String safePlaylistId = playlistId != null ? playlistId.trim() : null;
@@ -145,11 +153,13 @@ public class SpotifyService {
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public Map<String, Object> getRecentlyPlayed(String accessToken, Long after, Integer limit) {
         return getRecentlyPlayed(accessToken, after, null, limit);
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public Map<String, Object> getRecentlyPlayed(String accessToken, Long after, Long before, Integer limit) {
         int safeLimit = Math.max(1, Math.min(limit != null ? limit : 20, 50));
 
@@ -166,6 +176,7 @@ public class SpotifyService {
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public List<SpotifyTrackDTO> getTopTracks(String accessToken, int limit, String timeRange) {
         int safeLimit = Math.max(1, Math.min(limit, 20));
         String safeTimeRange = SpotifyTimeRange.fromQuery(timeRange).getApiValue();
@@ -182,6 +193,7 @@ public class SpotifyService {
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public List<SpotifyArtistDTO> getTopArtists(String accessToken, int limit, String timeRange) {
         int safeLimit = Math.max(1, Math.min(limit, 20));
         String safeTimeRange = SpotifyTimeRange.fromQuery(timeRange).getApiValue();
@@ -198,6 +210,7 @@ public class SpotifyService {
     }
 
     @Retryable(maxAttempts = 2)
+    /** Obtiene datos para esta parte del sistema. */
     public SpotifyNowPlayingDTO getCurrentlyPlayingTrack(String accessToken) {
         Map<String, Object> currentlyPlaying = getSpotifyResource(accessToken, "/me/player/currently-playing");
         Map<String, Object> item = asMap(currentlyPlaying.get("item"));
@@ -220,6 +233,8 @@ public class SpotifyService {
             .durationMs(asNullableInteger(item.get("duration_ms")))
             .build();
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private LinkedHashMap<String, String> collectRecentPlaylistIds(String accessToken, int limit) {
         Map<String, Object> recentlyPlayed = getRecentlyPlayed(accessToken, null, MAX_RECENT_TRACKS_TO_SCAN);
@@ -366,6 +381,8 @@ public class SpotifyService {
         return trackDtos;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private boolean detectPlaylistHasLikedTracks(String accessToken, String playlistId) {
         List<String> trackIds = extractPlaylistTrackIds(accessToken, playlistId, MAX_TRACKS_FOR_LIKED_PROBE);
         if (trackIds.isEmpty()) {
@@ -381,6 +398,8 @@ public class SpotifyService {
 
         return false;
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private List<String> extractPlaylistTrackIds(String accessToken, String playlistId, int limit) {
         int safeLimit = Math.max(1, Math.min(limit, MAX_PLAYLIST_DETAIL_TRACKS));
@@ -401,6 +420,8 @@ public class SpotifyService {
         return new ArrayList<>(trackIds);
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private Map<String, Object> extractTrackFromPlaylistItem(Map<String, Object> playlistTrackItem) {
         Map<String, Object> track = asMap(playlistTrackItem.get("track"));
         if (track.isEmpty()) {
@@ -416,6 +437,8 @@ public class SpotifyService {
 
         return track;
     }
+
+    /** Obtiene datos para esta parte del sistema. */
 
     private Map<String, Boolean> getSavedTracksContainsLookup(String accessToken, List<String> trackIds) {
         Map<String, Boolean> likedTracksById = new HashMap<>();
@@ -441,6 +464,8 @@ public class SpotifyService {
         }
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private String extractPlaylistOwnerName(Map<String, Object> playlist) {
         Map<String, Object> owner = asMap(playlist.get("owner"));
         String ownerDisplayName = asString(owner.get("display_name"));
@@ -450,6 +475,8 @@ public class SpotifyService {
 
         return asString(owner.get("id"));
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private boolean isOwnPlaylist(Map<String, Object> playlist, String currentUserId) {
         if (!StringUtils.hasText(currentUserId)) {
@@ -461,6 +488,8 @@ public class SpotifyService {
         return StringUtils.hasText(ownerId) && currentUserId.equals(ownerId);
     }
 
+    /** Construye una respuesta o estructura intermedia. */
+
     private SpotifyPlaylistDetailDTO buildUnavailablePlaylistDetail(String playlistId, String reason) {
         return SpotifyPlaylistDetailDTO.builder()
             .id(playlistId)
@@ -470,6 +499,8 @@ public class SpotifyService {
             .tracks(List.of())
             .build();
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolvePlaylistUnavailableReason(SpotifyApiException exception) {
         Integer statusCode = exception.getStatusCode();
@@ -482,10 +513,14 @@ public class SpotifyService {
         return "No se pudo cargar el detalle de la playlist.";
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private boolean isAccessRestricted(SpotifyApiException exception) {
         Integer statusCode = exception.getStatusCode();
         return statusCode != null && (statusCode == 403 || statusCode == 404);
     }
+
+    /** Transforma datos de un formato a otro. */
 
     private SpotifyTrackDTO mapToTrackDto(Map<String, Object> track) {
         Map<String, Object> album = asMap(track.get("album"));
@@ -502,6 +537,8 @@ public class SpotifyService {
             .build();
     }
 
+    /** Transforma datos de un formato a otro. */
+
     private SpotifyArtistDTO mapToArtistDto(Map<String, Object> artist) {
         Map<String, Object> followers = asMap(artist.get("followers"));
         Map<String, Object> externalUrls = asMap(artist.get("external_urls"));
@@ -516,6 +553,8 @@ public class SpotifyService {
             .popularity(asNullableInteger(artist.get("popularity")))
             .build();
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Map<String, Object> enrichArtistWithDetails(String accessToken, Map<String, Object> artist) {
         if (artistHasStats(artist)) {
@@ -542,6 +581,8 @@ public class SpotifyService {
         }
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private boolean artistHasStats(Map<String, Object> artist) {
         Map<String, Object> followers = asMap(artist.get("followers"));
         boolean hasFollowers = asNullableInteger(followers.get("total")) != null;
@@ -549,6 +590,8 @@ public class SpotifyService {
         boolean hasPopularity = asNullableInteger(artist.get("popularity")) != null;
         return hasFollowers || hasGenres || hasPopularity;
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private Integer extractPlaylistTracksTotal(Map<String, Object> playlist) {
         Map<String, Object> tracks = asMap(playlist.get("tracks"));
@@ -571,6 +614,8 @@ public class SpotifyService {
         return 0;
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private String extractPlaylistId(Map<String, Object> context) {
         if (!PLAYLIST_CONTEXT_TYPE.equals(asString(context.get("type")))) {
             return null;
@@ -592,6 +637,8 @@ public class SpotifyService {
         return null;
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private String extractImageUrl(Map<String, Object> playlist) {
         Object imagesObj = playlist.get("images");
         if (!(imagesObj instanceof List<?> images) || images.isEmpty()) {
@@ -601,6 +648,8 @@ public class SpotifyService {
         Map<String, Object> firstImage = asMap(images.get(0));
         return asString(firstImage.get("url"));
     }
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private List<String> extractNamedValues(Object value, String fieldName) {
         if (!(value instanceof List<?> list)) {
@@ -618,6 +667,8 @@ public class SpotifyService {
         return values;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private List<String> asStringList(Object value) {
         if (!(value instanceof List<?> list)) {
             return List.of();
@@ -633,6 +684,8 @@ public class SpotifyService {
         return values;
     }
 
+    /** Extrae un valor concreto desde una estructura más grande. */
+
     private List<Map<String, Object>> extractItems(Map<String, Object> response) {
         Object itemsObj = response.get("items");
         if (!(itemsObj instanceof List<?> items)) {
@@ -645,6 +698,8 @@ public class SpotifyService {
         }
         return parsedItems;
     }
+
+    /** Obtiene datos para esta parte del sistema. */
 
     private Map<String, Object> getSpotifyResource(String accessToken, String uri) {
         String safeAccessToken = Objects.requireNonNull(accessToken, "Spotify access token es obligatorio");
@@ -672,6 +727,7 @@ public class SpotifyService {
     }
 
     @SuppressWarnings("unused")
+    /** Obtiene datos para esta parte del sistema. */
     private List<Object> getSpotifyResourceList(String accessToken, String uri) {
         String safeAccessToken = Objects.requireNonNull(accessToken, "Spotify access token es obligatorio");
         String safeUri = Objects.requireNonNull(uri, "La URI de Spotify es obligatoria");
@@ -701,6 +757,8 @@ public class SpotifyService {
         }
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private Map<String, Object> asMap(Object value) {
         if (!(value instanceof Map<?, ?> rawMap)) {
             return Map.of();
@@ -715,14 +773,20 @@ public class SpotifyService {
         return map;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private String asString(Object value) {
         return value != null ? String.valueOf(value) : null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Integer asInteger(Object value) {
         Integer parsed = asNullableInteger(value);
         return parsed != null ? parsed : 0;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Integer asNullableInteger(Object value) {
         if (value instanceof Number number) {
@@ -735,6 +799,8 @@ public class SpotifyService {
 
         return null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Boolean asBoolean(Object value) {
         if (value instanceof Boolean bool) {

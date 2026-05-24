@@ -1,3 +1,8 @@
+/**
+ * Clase funcional: AssistantPlaylistResult.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras utilidades del frontend.
+ */
 export class AssistantPlaylistResult {
   constructor({
     playlistId = "",

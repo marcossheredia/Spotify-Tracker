@@ -9,6 +9,11 @@ import java.util.List;
 
 @Data
 @Builder
+/**
+ * Clase funcional: ApiError.
+ * Representa un error controlado de la aplicacion.
+ * Se conecta con: servicios, controladores y manejador global de errores.
+ */
 public class ApiError {
     private int status;
     private String error;

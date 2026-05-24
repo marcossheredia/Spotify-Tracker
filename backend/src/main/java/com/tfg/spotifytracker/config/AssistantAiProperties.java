@@ -7,6 +7,11 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @ConfigurationProperties(prefix = "assistant.ai")
+/**
+ * Clase funcional: AssistantAiProperties.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class AssistantAiProperties {
     private String provider = "mock";
     private String openaiApiKey;

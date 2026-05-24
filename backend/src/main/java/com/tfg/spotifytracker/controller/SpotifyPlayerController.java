@@ -28,6 +28,11 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RestController
 @RequestMapping("/api/spotify/player")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyPlayerController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyPlayerService, SpotifyTokenService.
+ */
 public class SpotifyPlayerController {
 
     private final SpotifyPlayerService spotifyPlayerService;
@@ -35,6 +40,7 @@ public class SpotifyPlayerController {
 
     @Operation(summary = "Obtener estado completo del reproductor")
     @GetMapping("/state")
+    /** Obtiene datos para esta parte del sistema. */
     public ResponseEntity<SpotifyPlayerStateDTO> getPlayerState(@AuthenticationPrincipal Usuario usuario) {
         String accessToken = resolveAccessToken(usuario);
         return ResponseEntity.ok(spotifyPlayerService.getPlayerState(accessToken));
@@ -42,6 +48,7 @@ public class SpotifyPlayerController {
 
     @Operation(summary = "Obtener cola actual")
     @GetMapping("/queue")
+    /** Obtiene datos para esta parte del sistema. */
     public ResponseEntity<SpotifyPlayerQueueDTO> getQueue(@AuthenticationPrincipal Usuario usuario) {
         String accessToken = resolveAccessToken(usuario);
         return ResponseEntity.ok(spotifyPlayerService.getQueue(accessToken));
@@ -49,24 +56,28 @@ public class SpotifyPlayerController {
 
     @Operation(summary = "Reanudar reproduccion")
     @PostMapping("/play")
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public ResponseEntity<SpotifyActionResultDTO> play(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(spotifyPlayerService.play(resolveAccessToken(usuario)));
     }
 
     @Operation(summary = "Pausar reproduccion")
     @PostMapping("/pause")
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public ResponseEntity<SpotifyActionResultDTO> pause(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(spotifyPlayerService.pause(resolveAccessToken(usuario)));
     }
 
     @Operation(summary = "Siguiente pista")
     @PostMapping("/next")
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public ResponseEntity<SpotifyActionResultDTO> next(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(spotifyPlayerService.next(resolveAccessToken(usuario)));
     }
 
     @Operation(summary = "Pista anterior")
     @PostMapping("/previous")
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public ResponseEntity<SpotifyActionResultDTO> previous(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(spotifyPlayerService.previous(resolveAccessToken(usuario)));
     }
@@ -106,6 +117,8 @@ public class SpotifyPlayerController {
 
         return ResponseEntity.ok(spotifyPlayerService.transferPlayback(resolveAccessToken(usuario), request));
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveAccessToken(Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {

@@ -19,6 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/spotify/compatibility")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyCompatibilityController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyCompatibilityService, SpotifyTokenService.
+ */
 public class SpotifyCompatibilityController {
 
     private final SpotifyCompatibilityService spotifyCompatibilityService;
@@ -26,6 +31,7 @@ public class SpotifyCompatibilityController {
 
     @Operation(summary = "Diagnostico de compatibilidad con Spotify")
     @GetMapping("/status")
+    /** Obtiene datos para esta parte del sistema. */
     public ResponseEntity<SpotifyCompatibilityStatusDTO> getStatus(@AuthenticationPrincipal Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {
             throw new UnauthorizedException("Usuario no autenticado en Spotify");

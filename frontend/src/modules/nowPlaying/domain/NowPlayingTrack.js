@@ -20,6 +20,11 @@ function formatMilliseconds(durationMs) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+/**
+ * Clase funcional: NowPlayingTrack.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras utilidades del frontend.
+ */
 export class NowPlayingTrack {
   constructor({
     id = "",

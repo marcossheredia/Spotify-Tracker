@@ -17,6 +17,11 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: UsuarioService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: UsuarioRepository.
+ */
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
@@ -64,18 +69,22 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
+    /** Busca un dato concreto para poder usarlo en el flujo. */
     public Usuario findById(UUID id) {
         return usuarioRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
     }
 
     @Transactional(readOnly = true)
+    /** Busca un dato concreto para poder usarlo en el flujo. */
     public Usuario findBySpotifyId(String spotifyId) {
         return usuarioRepository.findBySpotifyId(spotifyId)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario", "spotifyId", spotifyId));
     }
 
     // ── helpers ──────────────────────────────────────
+
+    /** Extrae un valor concreto desde una estructura más grande. */
 
     private String extractEmail(Map<String, Object> attrs) {
         Object email = attrs.get("email");
@@ -84,6 +93,7 @@ public class UsuarioService {
     }
 
     @SuppressWarnings("unchecked")
+    /** Extrae un valor concreto desde una estructura más grande. */
     private String extractImageUrl(Map<String, Object> attrs) {
         try {
             var images = (java.util.List<Map<String, Object>>) attrs.get("images");

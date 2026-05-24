@@ -22,39 +22,60 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyApiClient.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: WebClient, ObjectMapper.
+ */
 public class SpotifyApiClient {
 
     @Qualifier("spotifyWebClient")
     private final WebClient spotifyWebClient;
     private final ObjectMapper objectMapper;
 
+    /** Obtiene datos para esta parte del sistema. */
+
     public Map<String, Object> getMap(String accessToken, String uri) {
         return requestMap(accessToken, HttpMethod.GET, uri, null);
     }
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public List<Object> getList(String accessToken, String uri) {
         return requestList(accessToken, HttpMethod.GET, uri, null);
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public Map<String, Object> postMap(String accessToken, String uri, Object body) {
         return requestMap(accessToken, HttpMethod.POST, uri, body);
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public void postNoContent(String accessToken, String uri, Object body) {
         requestMap(accessToken, HttpMethod.POST, uri, body);
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public void putNoContent(String accessToken, String uri, Object body) {
         requestMap(accessToken, HttpMethod.PUT, uri, body);
     }
+
+    /** Elimina o desvincula datos según el caso. */
 
     public void deleteNoContent(String accessToken, String uri) {
         requestMap(accessToken, HttpMethod.DELETE, uri, null);
     }
 
+    /** Elimina o desvincula datos según el caso. */
+
     public void deleteNoContent(String accessToken, String uri, Object body) {
         requestMap(accessToken, HttpMethod.DELETE, uri, body);
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Map<String, Object> requestMap(String accessToken, HttpMethod method, String uri, Object body) {
         String safeAccessToken = Objects.requireNonNull(accessToken, "Spotify access token es obligatorio");
@@ -86,6 +107,8 @@ public class SpotifyApiClient {
             throw new SpotifyApiException("Error inesperado al consultar Spotify", null, null, null, ex);
         }
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private List<Object> requestList(String accessToken, HttpMethod method, String uri, Object body) {
         String safeAccessToken = Objects.requireNonNull(accessToken, "Spotify access token es obligatorio");
@@ -122,6 +145,8 @@ public class SpotifyApiClient {
         }
     }
 
+    /** Transforma datos de un formato a otro. */
+
     private SpotifyApiException toSpotifyApiException(HttpMethod method, String uri, WebClientResponseException ex) {
         Integer retryAfterSeconds = resolveRetryAfterSeconds(ex);
         String spotifyErrorCode = resolveSpotifyErrorCode(ex);
@@ -149,6 +174,8 @@ public class SpotifyApiClient {
         );
     }
 
+    /** Resuelve un valor final a partir del contexto actual. */
+
     private Integer resolveRetryAfterSeconds(WebClientResponseException ex) {
         String retryAfter = ex.getHeaders().getFirst("Retry-After");
         if (retryAfter == null || retryAfter.isBlank() || !retryAfter.matches("\\d+")) {
@@ -158,6 +185,8 @@ public class SpotifyApiClient {
         return Integer.parseInt(retryAfter);
     }
 
+    /** Resuelve un valor final a partir del contexto actual. */
+
     private String resolveSpotifyErrorCode(WebClientResponseException ex) {
         String retryReason = ex.getHeaders().getFirst("X-Spotify-Ratelimit-Reason");
         if (StringUtils.hasText(retryReason)) {
@@ -166,6 +195,8 @@ public class SpotifyApiClient {
 
         return null;
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveSpotifyErrorMessage(String responseBody) {
         if (!StringUtils.hasText(responseBody)) {
@@ -193,6 +224,8 @@ public class SpotifyApiClient {
         return null;
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private String classifySpotifyError(WebClientResponseException ex, String spotifyMessage) {
         int status = ex.getStatusCode().value();
         String message = spotifyMessage != null ? spotifyMessage.toLowerCase() : "";
@@ -218,6 +251,8 @@ public class SpotifyApiClient {
 
         return null;
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private Map<String, Object> asMap(Object value) {
         if (!(value instanceof Map<?, ?> rawMap)) {

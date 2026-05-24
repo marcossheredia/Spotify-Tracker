@@ -1,122 +1,130 @@
 package com.tfg.spotifytracker.service;
 
-
-import com.tfg.spotifytracker.dto.assistant.response.AssistantPlaylistPlanDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Component
+/**
+ * Clase funcional: AssistantSearchQueryBuilder.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class AssistantSearchQueryBuilder {
 
-    public List<String> buildQueries(AssistantPlaylistPlanDTO plan) {
+    public List<String> buildQueries(String originalMessage,
+                                     List<String> genreQueries,
+                                     List<String> contextQueries,
+                                     String language) {
         Set<String> unique = new LinkedHashSet<>();
-        if (plan == null) {
-            return List.of();
+        String normalized = normalizeForMatching(originalMessage);
+
+        addDetectedQueries(unique, normalized);
+
+        for (String genre : filterValues(genreQueries)) {
+            unique.add(normalizeQuery(genre));
         }
 
-        String primaryGenre = normalizeQuery(plan.getPrimaryGenre());
-        List<String> genres = filterValues(plan.getGenres());
-        List<String> secondaryGenres = filterValues(plan.getSecondaryGenres());
-        List<String> moods = filterValues(plan.getMoods());
-        String eventContext = normalizeQuery(plan.getEventContext());
-        String audience = normalizeQuery(plan.getTargetAudience());
-        String language = normalizeQuery(plan.getLanguage());
-        Integer yearStart = plan.getYearStart();
-        Integer yearEnd = plan.getYearEnd();
-
-        List<String> allGenres = new ArrayList<>();
-        if (StringUtils.hasText(primaryGenre)) {
-            allGenres.add(primaryGenre);
-        }
-        allGenres.addAll(genres);
-        allGenres.addAll(secondaryGenres);
-        allGenres = allGenres.stream().distinct().toList();
-
-        String decadeHint = "";
-        if (yearStart != null && yearEnd != null) {
-            decadeHint = toDecadeHint(yearStart, yearEnd);
+        for (String context : filterValues(contextQueries)) {
+            unique.add(normalizeQuery(context));
         }
 
-        // Layer 1: intent-based queries
-        if ("wedding".equals(eventContext)) {
-            unique.add("romantic wedding songs");
-            unique.add("wedding love songs");
-            unique.add("elegant romantic ballads");
-            unique.add("classic love songs");
-            unique.add("wedding dinner music");
-            if (StringUtils.hasText(language) && language.startsWith("es")) {
-                unique.add("spanish romantic songs");
-            }
+        if (unique.isEmpty()) {
+            unique.add("popular songs");
         }
-
-        if ("classroom".equals(eventContext) || "kids".equals(audience)) {
-            unique.add("calm kids music");
-            unique.add("relaxing children songs");
-            unique.add("instrumental calm classroom");
-            unique.add("family friendly calm music");
-        }
-
-        // Layer 2: genre/context queries
-        for (String genre : allGenres) {
-            if (!StringUtils.hasText(genre)) {
-                continue;
-            }
-            if (StringUtils.hasText(decadeHint)) {
-                unique.add(normalizeQuery(genre + " " + decadeHint + " classics"));
-            }
-            unique.add(normalizeQuery("classic " + genre));
-            if (StringUtils.hasText(eventContext)) {
-                unique.add(normalizeQuery(genre + " " + eventContext + " music"));
-            }
-            if (StringUtils.hasText(audience) && !"general".equals(audience)) {
-                unique.add(normalizeQuery(genre + " " + audience + " friendly"));
-            }
-            if (yearStart != null && yearEnd != null) {
-                unique.add(normalizeQuery(genre + " year:" + yearStart + "-" + yearEnd));
-            }
-        }
-
-        for (String mood : moods) {
-            if (StringUtils.hasText(primaryGenre)) {
-                unique.add(normalizeQuery(primaryGenre + " " + mood));
-            }
-            if (StringUtils.hasText(eventContext)) {
-                unique.add(normalizeQuery(mood + " " + eventContext + " songs"));
-            }
-            unique.add(normalizeQuery(mood + " music"));
-        }
-
-        // Layer 3: broad fallback queries
-        unique.add("pop love songs");
-        unique.add("romantic hits");
-        unique.add("party classics");
-        unique.add("calm music");
-        unique.add("workout rock");
 
         List<String> queries = new ArrayList<>();
         for (String query : unique) {
             if (StringUtils.hasText(query)) {
                 queries.add(query);
             }
+            if (queries.size() >= 3) {
+                break;
+            }
         }
         return queries;
     }
 
-    private String toDecadeHint(Integer yearStart, Integer yearEnd) {
-        if (yearStart == null || yearEnd == null) {
-            return "";
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
+    private void addDetectedQueries(Set<String> unique, String normalized) {
+        if (!StringUtils.hasText(normalized)) {
+            return;
         }
-        if (yearStart == 1970 && yearEnd == 1979) return "70s";
-        if (yearStart == 1980 && yearEnd == 1989) return "80s";
-        if (yearStart == 1990 && yearEnd == 1999) return "90s";
-        if (yearStart == 2000 && yearEnd == 2009) return "2000s";
-        return yearStart + " " + yearEnd;
+
+        if (normalized.contains("rock") && (normalized.contains("70") || normalized.contains("setenta"))) {
+            unique.add("classic rock 70s");
+            unique.add("70s rock classics");
+            unique.add("rock classics");
+            return;
+        }
+
+        if (normalized.contains("disco") || normalized.contains("funk")) {
+            if (normalized.contains("80") || normalized.contains("ochenta")) {
+                unique.add("disco 80s classics");
+                unique.add("80s dance classics");
+                unique.add("funk disco 80s");
+            } else {
+                unique.add("disco classics");
+                unique.add("dance classics");
+                unique.add("funk disco");
+            }
+            return;
+        }
+
+        if (normalized.contains("boda") || normalized.contains("romant")) {
+            unique.add("romantic wedding songs");
+            unique.add("classic love songs");
+            unique.add("wedding love songs");
+            return;
+        }
+
+        if (normalized.contains("rock")) {
+            unique.add("rock hits");
+            unique.add("rock classics");
+            unique.add("classic rock");
+            return;
+        }
+
+        if (normalized.contains("pop")) {
+            unique.add("pop hits");
+            unique.add("pop songs");
+            unique.add("popular pop");
+            return;
+        }
+
+        if (normalized.contains("jazz")) {
+            unique.add("smooth jazz");
+            unique.add("jazz classics");
+            unique.add("jazz songs");
+            return;
+        }
+
+        if (normalized.contains("estudi") || normalized.contains("concentr")) {
+            unique.add("study music");
+            unique.add("focus music");
+            unique.add("lofi study");
+            return;
+        }
+
+        if (normalized.contains("fiesta")) {
+            unique.add("party hits");
+            unique.add("party classics");
+            unique.add("dance party songs");
+            return;
+        }
+
+        unique.add("popular songs");
+        unique.add("spotify hits");
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private List<String> filterValues(List<String> values) {
         if (values == null) {
@@ -132,11 +140,21 @@ public class AssistantSearchQueryBuilder {
         return filtered;
     }
 
+    /** Normaliza el valor de entrada para evitar errores. */
+
     private String normalizeQuery(String value) {
         if (!StringUtils.hasText(value)) {
             return "";
         }
-
         return value.trim().replaceAll("\\s+", " ");
+    }
+
+    /** Normaliza el valor de entrada para evitar errores. */
+
+    private String normalizeForMatching(String message) {
+        String text = message == null ? "" : message.toLowerCase(Locale.ROOT);
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFD)
+            .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        return normalized.replaceAll("[^a-z0-9\\s]", " ").replaceAll("\\s+", " ").trim();
     }
 }

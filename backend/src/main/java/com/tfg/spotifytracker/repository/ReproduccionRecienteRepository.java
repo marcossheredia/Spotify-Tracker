@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
+/**
+ * Clase funcional: ReproduccionRecienteRepository.
+ * Gestiona acceso a datos en base de datos.
+ * Se conecta con: entidades y servicios.
+ */
 public interface ReproduccionRecienteRepository extends JpaRepository<ReproduccionReciente, UUID> {
 
     boolean existsByUsuarioIdAndSpotifyTrackIdAndPlayedAtMs(UUID usuarioId, String spotifyTrackId, Long playedAtMs);

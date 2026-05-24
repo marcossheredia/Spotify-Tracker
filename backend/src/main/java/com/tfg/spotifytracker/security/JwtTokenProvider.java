@@ -15,9 +15,16 @@ import java.util.Date;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+/**
+ * Clase funcional: JwtTokenProvider.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: AppProperties.
+ */
 public class JwtTokenProvider {
 
     private final AppProperties appProperties;
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public String generateToken(Usuario usuario) {
         Date now = new Date();
@@ -34,9 +41,13 @@ public class JwtTokenProvider {
             .compact();
     }
 
+    /** Obtiene datos para esta parte del sistema. */
+
     public String getSpotifyIdFromToken(String token) {
         return parseClaims(token).getSubject();
     }
+
+    /** Valida que la información cumpla lo esperado. */
 
     public boolean validateToken(String token) {
         try {
@@ -56,6 +67,8 @@ public class JwtTokenProvider {
         return false;
     }
 
+    /** Convierte texto o datos en un formato utilizable. */
+
     private Claims parseClaims(String token) {
         return Jwts.parser()
             .verifyWith(getSigningKey())
@@ -63,6 +76,8 @@ public class JwtTokenProvider {
             .parseSignedClaims(token)
             .getPayload();
     }
+
+    /** Obtiene datos para esta parte del sistema. */
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(

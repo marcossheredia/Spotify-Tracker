@@ -29,6 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/spotify/playlists")
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyPlaylistManagementController.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyPlaylistManagementService, SpotifyTokenService.
+ */
 public class SpotifyPlaylistManagementController {
 
     private final SpotifyPlaylistManagementService spotifyPlaylistManagementService;
@@ -54,6 +59,8 @@ public class SpotifyPlaylistManagementController {
         String accessToken = resolveAccessToken(usuario);
         return ResponseEntity.ok(spotifyPlaylistManagementService.createTopTracksPlaylist(accessToken, request));
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveAccessToken(Usuario usuario) {
         if (usuario == null || !StringUtils.hasText(usuario.getAccessToken())) {

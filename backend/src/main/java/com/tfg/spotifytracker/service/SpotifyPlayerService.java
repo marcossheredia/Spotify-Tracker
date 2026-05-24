@@ -16,10 +16,17 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Clase funcional: SpotifyPlayerService.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: SpotifyApiClient, SpotifyDtoMapper.
+ */
 public class SpotifyPlayerService {
 
     private final SpotifyApiClient spotifyApiClient;
     private final SpotifyDtoMapper mapper;
+
+    /** Obtiene datos para esta parte del sistema. */
 
     public SpotifyPlayerStateDTO getPlayerState(String accessToken) {
         try {
@@ -63,6 +70,8 @@ public class SpotifyPlayerService {
         }
     }
 
+    /** Obtiene datos para esta parte del sistema. */
+
     public SpotifyPlayerQueueDTO getQueue(String accessToken) {
         Map<String, Object> queueResponse = spotifyApiClient.getMap(accessToken, "/me/player/queue");
 
@@ -88,25 +97,35 @@ public class SpotifyPlayerService {
             .build();
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public SpotifyActionResultDTO play(String accessToken) {
         spotifyApiClient.putNoContent(accessToken, "/me/player/play", null);
         return ok("play", "Reproduccion reanudada");
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public SpotifyActionResultDTO pause(String accessToken) {
         spotifyApiClient.putNoContent(accessToken, "/me/player/pause", null);
         return ok("pause", "Reproduccion pausada");
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public SpotifyActionResultDTO next(String accessToken) {
         spotifyApiClient.postNoContent(accessToken, "/me/player/next", null);
         return ok("next", "Saltaste a la siguiente pista");
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     public SpotifyActionResultDTO previous(String accessToken) {
         spotifyApiClient.postNoContent(accessToken, "/me/player/previous", null);
         return ok("previous", "Volviste a la pista anterior");
     }
+
+    /** Actualiza una configuración o estado. */
 
     public SpotifyActionResultDTO setRepeat(String accessToken, String state) {
         String repeatState = state == null || state.isBlank() ? "off" : state;
@@ -114,10 +133,14 @@ public class SpotifyPlayerService {
         return ok("repeat", "Modo repeat actualizado a " + repeatState);
     }
 
+    /** Actualiza una configuración o estado. */
+
     public SpotifyActionResultDTO setShuffle(String accessToken, boolean enabled) {
         spotifyApiClient.putNoContent(accessToken, "/me/player/shuffle?state=" + enabled, null);
         return ok("shuffle", enabled ? "Shuffle activado" : "Shuffle desactivado");
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     public SpotifyActionResultDTO transferPlayback(String accessToken, SpotifyPlaybackTransferRequestDTO request) {
         spotifyApiClient.putNoContent(
@@ -132,6 +155,8 @@ public class SpotifyPlayerService {
         return ok("transfer", "Reproduccion transferida al dispositivo seleccionado");
     }
 
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
+
     private SpotifyPlayerStateDTO unavailableState(String reason) {
         return SpotifyPlayerStateDTO.builder()
             .available(false)
@@ -142,6 +167,8 @@ public class SpotifyPlayerService {
             .capabilitiesNote(reason)
             .build();
     }
+
+    /** Obtiene datos para esta parte del sistema. */
 
     private List<SpotifyPlayerDeviceDTO> getDevices(String accessToken) {
         Map<String, Object> response = spotifyApiClient.getMap(accessToken, "/me/player/devices");
@@ -160,6 +187,8 @@ public class SpotifyPlayerService {
         return devices;
     }
 
+    /** Transforma datos de un formato a otro. */
+
     private SpotifyPlayerDeviceDTO toDevice(Map<String, Object> device) {
         if (device == null || device.isEmpty()) {
             return null;
@@ -175,10 +204,14 @@ public class SpotifyPlayerService {
             .build();
     }
 
+    /** Resuelve un valor final a partir del contexto actual. */
+
     private String resolveUserProduct(String accessToken) {
         Map<String, Object> me = spotifyApiClient.getMap(accessToken, "/me");
         return mapper.asString(me.get("product"));
     }
+
+    /** Resuelve un valor final a partir del contexto actual. */
 
     private String resolveCapabilitiesNote(boolean productKnown, boolean premium, boolean hasActiveDevice) {
         if (!productKnown) {
@@ -195,6 +228,8 @@ public class SpotifyPlayerService {
 
         return "Las acciones de control remoto requieren Spotify Premium.";
     }
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private SpotifyActionResultDTO ok(String action, String message) {
         return SpotifyActionResultDTO.builder()

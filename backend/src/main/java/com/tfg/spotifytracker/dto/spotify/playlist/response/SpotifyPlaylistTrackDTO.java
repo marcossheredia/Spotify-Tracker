@@ -7,6 +7,11 @@ import java.util.List;
 
 @Data
 @Builder
+/**
+ * Clase funcional: SpotifyPlaylistTrackDTO.
+ * Representa datos que viajan entre capas o por la API.
+ * Se conecta con: controladores y servicios que leen o devuelven estos datos.
+ */
 public class SpotifyPlaylistTrackDTO {
     private String id;
     private String name;

@@ -180,7 +180,7 @@ const router = useRouter();
 const tab = ref(resolveTabFromQuery(route.query.tab));
 const searchQuery = ref("");
 const sortBy = ref("recent");
-const viewMode = ref("list");
+const viewMode = ref("grid");
 const {
   tracksPage,
   albumsPage,

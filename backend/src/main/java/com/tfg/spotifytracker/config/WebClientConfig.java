@@ -16,7 +16,14 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+/**
+ * Clase funcional: WebClientConfig.
+ * Su objetivo es coordinar esta parte del flujo de forma sencilla.
+ * Se conecta con: otras partes de la aplicación.
+ */
 public class WebClientConfig {
+
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
 
     private ReactorClientHttpConnector spotifyClientConnector() {
         HttpClient httpClient = HttpClient.create()
@@ -31,6 +38,7 @@ public class WebClientConfig {
     }
 
     @Bean
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public WebClient spotifyWebClient() {
         return WebClient.builder()
             .baseUrl("https://api.spotify.com/v1")
@@ -40,6 +48,7 @@ public class WebClientConfig {
     }
 
     @Bean
+    /** Ejecuta una parte concreta de la lógica de esta clase. */
     public WebClient spotifyAccountsWebClient() {
         return WebClient.builder()
             .baseUrl("https://accounts.spotify.com")
